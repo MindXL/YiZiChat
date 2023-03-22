@@ -5,6 +5,7 @@
 *.vcxproj.*
 
 # build
+/dist
 **/x64/
 **/bin
 **/obj
