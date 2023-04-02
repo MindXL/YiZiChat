@@ -14,6 +14,7 @@ namespace YiZi
     private:
         static void Dispatch(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
 
+        static void HandleLoginRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
         static void HandleTestRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
     };
 }

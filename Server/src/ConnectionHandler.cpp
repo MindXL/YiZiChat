@@ -31,31 +31,65 @@ namespace YiZi
         {
         case Packet::PacketType::TestRequest: HandleTestRequest(connfd, reqBuffer, resBuffer);
             break;
+        case Packet::PacketType::LoginRequest: HandleLoginRequest(connfd, reqBuffer, resBuffer);
+            break;
         default: ;
         }
     }
 
+    void ConnectionHandler::HandleLoginRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer)
+    {
+        const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+        std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
+        password.remove_suffix(password.size() - password.find_first_of('\0'));
+
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
+        response_header->type = (uint8_t)Packet::PacketType::LoginResponse;
+
+        auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(resBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        // TODO: Require database support.
+        if (phone == "13312345678" && password == "password")
+        {
+            response_data->isValid = true;
+
+            response_data->id = 0;
+            constexpr const char16_t* nickname = u"12as";
+            memcpy(response_data->nickname, nickname, sizeof(nickname) * sizeof(char16_t));
+            // TODO: Make sure a zero character follows (if nickname doesn't take up the whole space).
+
+            response_data->join_time = 0;
+
+            response_data->isAdmin = true;
+        }
+        else
+        {
+            response_data->isValid = false;
+        }
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
+        bool success = send(connfd, resBuffer, response_len, 0);
+    }
+
     void ConnectionHandler::HandleTestRequest(socket_t connfd, uint8_t* const reqBuffer, uint8_t* const resBuffer)
     {
-        const auto request_data = reinterpret_cast<Packet::TestRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const auto* const request_data = reinterpret_cast<Packet::TestRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
 
-        const std::string_view content{(char*)request_data->message, request_data->length};
+        const std::string_view content{(const char*)request_data->message, request_data->length};
 
         std::cout << "Got a test message: " << content << std::endl;
 
-        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::TEST_RESPONSE_LENGTH;
-        const auto response = resBuffer;
-
-        const auto response_header = reinterpret_cast<Packet::PacketHeader*>(response);
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
         response_header->type = (uint8_t)Packet::PacketType::TestResponse;
-        response_header->length = response_len;
 
-        const auto response_data = reinterpret_cast<Packet::TestResponse*>(response + Packet::PACKET_HEADER_LENGTH);
+        auto* const response_data = reinterpret_cast<Packet::TestResponse*>(resBuffer + Packet::PACKET_HEADER_LENGTH);
 
         const std::string message{"Welcome to YiZiChat."};
         memcpy(response_data->message, message.data(), message.length());
-        response_data->length = message.length();
+        response_data->length = (uint32_t)message.length();
 
-        bool success = send(connfd, response, response_len, 0);
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::TEST_RESPONSE_LENGTH;
+        bool success = send(connfd, resBuffer, response_len, 0);
     }
 }

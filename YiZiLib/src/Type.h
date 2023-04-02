@@ -9,6 +9,7 @@ namespace YiZi
 #elif defined(YZ_SERVER)
     typedef int socket_t;
 #else
-    //#error macro missing
+    // TODO: "#error" will not compile on ubuntu (wsl).
+    //#error "macro missing"
 #endif
 }

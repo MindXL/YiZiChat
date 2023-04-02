@@ -1,6 +1,6 @@
 #pragma once
 
-namespace YiZi
+namespace YiZi::Client
 {
     class Buffer
     {
