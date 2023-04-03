@@ -73,6 +73,8 @@ BOOL CClientApp::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
+    YiZi::Client::CSocket::Get()->Initialize();
+
     /*
     CClientDlg dlg;
     m_pMainWnd = &dlg;

@@ -12,17 +12,10 @@ IMPLEMENT_DYNAMIC(CLoginDlg, CDialogEx)
 
 CLoginDlg::CLoginDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_LOGIN_DIALOG, pParent),
-      m_Socket{new CSocket()},
       m_csPhone(_T("")),
-      m_csPassword(_T(""))
-{
-    m_Socket->Create();
-}
+      m_csPassword(_T("")) {}
 
-CLoginDlg::~CLoginDlg()
-{
-    delete m_Socket;
-}
+CLoginDlg::~CLoginDlg() {}
 
 void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -79,7 +72,8 @@ bool CLoginDlg::HandleLoginRequest()
     if (password.GetLength() < YiZi::Database::User::ItemLength::PASSWORD_MAX_LENGTH)
         request_data->password[password.GetLength()] = '\0';
 
-    if (!m_Socket->Connect(_T("127.0.0.1"), 5000) || !m_Socket->Send(reqBuffer, request_len))
+    auto* const socket = YiZi::Client::CSocket::Get();
+    if (!socket->Connect(_T("127.0.0.1"), 5000) || !socket->Send(reqBuffer, request_len))
     {
         AfxMessageBox(_T("连接服务器失败。请检查网络。"));
         return false;
@@ -93,7 +87,8 @@ bool CLoginDlg::HandleLoginResponse()
     uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
     constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::LOGIN_RESPONSE_LENGTH;
 
-    m_Socket->Receive(resBuffer, response_len);
+    auto* const socket = YiZi::Client::CSocket::Get();
+    socket->Receive(resBuffer, response_len);
 
     const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
     if (response_header->type != (uint8_t)YiZi::Packet::PacketType::LoginResponse)
@@ -113,7 +108,7 @@ bool CLoginDlg::HandleLoginResponse()
     CString message{_T("登录成功。\n欢迎你：")};
     message.Append(nickname.data());
     AfxMessageBox(message);
-    m_Socket->Close();
+    socket->Close();
 
     return true;
 }

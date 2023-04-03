@@ -2,5 +2,4 @@
 
 #include <cstdint>
 
-#include "src/Type.h"
-#include "src/Packet.h"
+#include "include/YiZi/YiZi.h"

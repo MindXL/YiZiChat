@@ -9,35 +9,35 @@
 
 namespace YiZi
 {
-    void ConnectionHandler::Handle(socket_t connfd)
+    void ConnectionHandler::Handle(const std::shared_ptr<Server::SAcceptSocket>& client)
     {
         auto [reqBuffer, resBuffer] = BufferManager::Get()->Fetch();
 
         while (true)
         {
-            if (recv(connfd, reqBuffer, Packet::REQUEST_MAX_LENGTH(), 0) <= 0)
+            if (!client->Receive(reqBuffer, Packet::REQUEST_MAX_LENGTH()))
                 break;
 
-            Dispatch(connfd, reqBuffer, resBuffer);
+            Dispatch(client, reqBuffer, resBuffer);
         }
 
         BufferManager::Get()->Return(reqBuffer);
     }
 
-    void ConnectionHandler::Dispatch(socket_t connfd, uint8_t* const reqBuffer, uint8_t* const resBuffer)
+    void ConnectionHandler::Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer, uint8_t* const resBuffer)
     {
         switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(reqBuffer);
             Packet::PacketType{request_header->type})
         {
-        case Packet::PacketType::TestRequest: HandleTestRequest(connfd, reqBuffer, resBuffer);
+        case Packet::PacketType::TestRequest: HandleTestRequest(client, reqBuffer, resBuffer);
             break;
-        case Packet::PacketType::LoginRequest: HandleLoginRequest(connfd, reqBuffer, resBuffer);
+        case Packet::PacketType::LoginRequest: HandleLoginRequest(client, reqBuffer, resBuffer);
             break;
         default: ;
         }
     }
 
-    void ConnectionHandler::HandleLoginRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer)
+    void ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
         const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
@@ -69,10 +69,11 @@ namespace YiZi
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
-        bool success = send(connfd, resBuffer, response_len, 0);
+        bool success = client->Send(resBuffer, response_len);
     }
 
-    void ConnectionHandler::HandleTestRequest(socket_t connfd, uint8_t* const reqBuffer, uint8_t* const resBuffer)
+    void ConnectionHandler::HandleTestRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer,
+                                              uint8_t* const resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::TestRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
 
@@ -90,6 +91,6 @@ namespace YiZi
         response_data->length = (uint32_t)message.length();
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::TEST_RESPONSE_LENGTH;
-        bool success = send(connfd, resBuffer, response_len, 0);
+        bool success = client->Send(resBuffer, response_len);
     }
 }

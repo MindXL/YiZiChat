@@ -1,20 +1,21 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
-#include <YiZi/YiZi.h>
+#include "SSocket.h"
 
 namespace YiZi
 {
     class ConnectionHandler
     {
     public:
-        static void Handle(socket_t connfd);
+        static void Handle(const std::shared_ptr<Server::SAcceptSocket>& client);
 
     private:
-        static void Dispatch(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
+        static void Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
 
-        static void HandleLoginRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
-        static void HandleTestRequest(socket_t connfd, uint8_t* reqBuffer, uint8_t* resBuffer);
+        static void HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
+        static void HandleTestRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
     };
 }

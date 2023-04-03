@@ -12,5 +12,6 @@
 
 #include "src/Core/Buffer.h"
 #include "src/Core/InputControl.h"
+#include "src/Core/CSocket.h"
 
 #endif //PCH_H

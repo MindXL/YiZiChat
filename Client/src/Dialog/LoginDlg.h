@@ -22,7 +22,6 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
-    CSocket* m_Socket{}; // Need to be abstracted and removed from here.
     bool HandleLoginRequest();
     bool HandleLoginResponse();
 
