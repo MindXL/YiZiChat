@@ -6,11 +6,14 @@
 
 #include "ConnectionHandler.h"
 #include "SSocket.h"
+#include "Environment.h"
 
 namespace YiZi::Server
 {
     Application::Application(const ip_t ip, const port_t port)
     {
+        Environment::Get()->CheckEnvironment();
+
         SListenSocket::Get()->Initialize();
         SListenSocket::Get()->Listen(ip, port);
     }
