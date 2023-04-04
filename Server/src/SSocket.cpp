@@ -72,7 +72,8 @@ namespace YiZi::Server
     bool SAcceptSocket::Accept()
     {
         socklen_t cli_addr_len;
-        const socket_t socket = accept(SListenSocket::Get()->GetSocket(), (sockaddr*)&m_ClientAddress, &cli_addr_len);
+        const socket_t listenfd = SListenSocket::Get()->GetSocket();
+        const socket_t socket = accept(listenfd, (sockaddr*)&m_ClientAddress, &cli_addr_len);
 
         if (socket == -1)
             throw std::runtime_error{"SAcceptSocket: Socket accept failed."};
@@ -88,6 +89,6 @@ namespace YiZi::Server
 
     packet_length_t SAcceptSocket::Receive(void* const buffer, const packet_length_t byteCount)
     {
-        return recv(m_Socket, buffer, byteCount, 0) != -1;
+        return recv(m_Socket, buffer, byteCount, 0);
     }
 }

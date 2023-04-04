@@ -108,7 +108,6 @@ bool CLoginDlg::HandleLoginResponse()
     CString message{_T("登录成功。\n欢迎你：")};
     message.Append(nickname.data());
     AfxMessageBox(message);
-    socket->Close();
 
     return true;
 }

@@ -33,6 +33,8 @@ namespace YiZi
             break;
         case Packet::PacketType::LoginRequest: HandleLoginRequest(client, reqBuffer, resBuffer);
             break;
+        case Packet::PacketType::ChatMessageRequest: HandleChatMessageRequest(client, reqBuffer, resBuffer);
+            break;
         default: ;
         }
     }
@@ -70,6 +72,22 @@ namespace YiZi
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
         bool success = client->Send(resBuffer, response_len);
+    }
+
+    void ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    {
+        auto* const request_data = (Packet::ChatMessageRequest*)(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        // TODO: If user is not logged in.
+
+        /* Test code */
+        std::u16string_view content{(const char16_t*)request_data->content, Database::Transcript::ItemLength::CONTENT_MAX_LENGTH};
+        content.remove_suffix(content.length() - content.find_first_of(u'\0'));
+        std::cout << "Got a message from client: ";
+        //std::u<< content << std::endl;
+        /* Test code */
+
+        // TODO: Send message to all other users.
     }
 
     void ConnectionHandler::HandleTestRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer,

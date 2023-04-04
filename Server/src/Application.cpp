@@ -30,7 +30,15 @@ namespace YiZi::Server
         while (true)
         {
             auto client = std::make_shared<SAcceptSocket>();
-            client->Accept();
+            try
+            {
+                client->Accept();
+            }
+            catch (const std::runtime_error& error)
+            {
+                std::cerr << error.what() << std::endl;
+                continue;
+            }
 
             std::thread(ConnectionHandler::Handle, client).detach();
             client = nullptr;

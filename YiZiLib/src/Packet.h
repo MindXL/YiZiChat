@@ -9,6 +9,8 @@ namespace YiZi::Packet
     enum class PacketType
     {
         LoginRequest, LoginResponse,
+        ChatMessageRequest, ChatMessageResponse,
+
         TestRequest, TestResponse
     };
 
@@ -39,6 +41,22 @@ namespace YiZi::Packet
 
     static constexpr int LOGIN_RESPONSE_LENGTH = sizeof(LoginResponse);
 
+    struct ChatMessageRequest
+    {
+        uint8_t content[Database::Transcript::ItemLength::CONTENT_MAX_LENGTH * sizeof(char16_t)];
+    };
+
+    static constexpr int CHAT_MESSAGE_REQUEST_LENGTH = sizeof(ChatMessageRequest);
+
+    struct ChatMessageResponse
+    {
+        uint8_t nickname[Database::User::ItemLength::NICKNAME_MAX_LENGTH * sizeof(char16_t)];
+        uint32_t timestamp;
+        uint8_t content[Database::Transcript::ItemLength::CONTENT_MAX_LENGTH * sizeof(char16_t)];
+    };
+
+    static constexpr int CHAT_MESSAGE_RESPONSE_LENGTH = sizeof(ChatMessageResponse);
+
     struct TestRequest
     {
         uint32_t length;
@@ -60,6 +78,7 @@ namespace YiZi::Packet
     {
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_REQUEST_LENGTH,
+                   CHAT_MESSAGE_REQUEST_LENGTH,
                    TEST_REQUEST_LENGTH,
                    0
                });
@@ -71,6 +90,7 @@ namespace YiZi::Packet
     {
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_RESPONSE_LENGTH,
+                   CHAT_MESSAGE_RESPONSE_LENGTH,
                    TEST_RESPONSE_LENGTH,
                    0
                });
