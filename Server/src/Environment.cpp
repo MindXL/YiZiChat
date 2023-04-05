@@ -5,7 +5,6 @@
 
 #include <unistd.h>
 #include <pwd.h>
-//#include <mysqlx/xdevapi.h>
 
 namespace YiZi::Server
 {
@@ -15,6 +14,11 @@ namespace YiZi::Server
     {
         CheckDirectories();
         CheckDatabaseConfigFile();
+
+        if (!IsDirectoryReady())
+            throw std::runtime_error{"[Environment]: Creating directories failed."};
+        if (!IsDatabaseConfigReady())
+            throw std::runtime_error{"[Environment]: Configuring for database connection failed."};
     }
 
     void Environment::CheckDirectories()
@@ -38,6 +42,8 @@ namespace YiZi::Server
         {
             std::cout << "Directory already exists." << std::endl;
         }
+
+        m_IsDirectoryReady = true;
     }
 
     void Environment::CheckDatabaseConfigFile()
@@ -86,5 +92,7 @@ namespace YiZi::Server
 
         // TODO: Test for database connection.
         std::cout << "Success." << std::endl;
+
+        m_IsDatabaseConfigReady = true;
     }
 }

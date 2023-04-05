@@ -12,7 +12,14 @@ namespace YiZi::Server
 {
     Application::Application(const ip_t ip, const port_t port)
     {
-        Environment::Get()->CheckEnvironment();
+        try
+        {
+            Environment::Get()->CheckEnvironment();
+        }
+        catch (const std::runtime_error&)
+        {
+            throw;
+        }
 
         SListenSocket::Get()->Initialize();
         SListenSocket::Get()->Listen(ip, port);
