@@ -7,7 +7,7 @@
 
 #include "BufferManager.h"
 
-namespace YiZi
+namespace YiZi::Server
 {
     void ConnectionHandler::Handle(const std::shared_ptr<Server::SAcceptSocket>& client)
     {

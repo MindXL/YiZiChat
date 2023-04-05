@@ -5,7 +5,7 @@
 
 #include "SSocket.h"
 
-namespace YiZi
+namespace YiZi::Server
 {
     class ConnectionHandler
     {

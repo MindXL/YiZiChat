@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <list>
 
-namespace YiZi
+namespace YiZi::Server
 {
     class BufferManager
     {

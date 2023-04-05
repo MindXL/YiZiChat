@@ -2,7 +2,7 @@
 
 #include <YiZi/YiZi.h>
 
-namespace YiZi
+namespace YiZi::Server
 {
     BufferManager* BufferManager::s_BufferManager = new BufferManager();
 
