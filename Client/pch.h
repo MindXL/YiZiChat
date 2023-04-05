@@ -8,7 +8,6 @@
 #include <utility>
 #include <regex>
 #include <thread>
-#include <chrono>
 
 #include "src/Core/Buffer.h"
 #include "src/Core/InputControl.h"

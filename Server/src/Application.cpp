@@ -7,6 +7,7 @@
 #include "ConnectionHandler.h"
 #include "SSocket.h"
 #include "Environment.h"
+#include "MySQLConnector.h"
 
 namespace YiZi::Server
 {
@@ -15,6 +16,7 @@ namespace YiZi::Server
         try
         {
             Environment::Get()->CheckEnvironment();
+            MySQLConnector::Get()->Connect();
         }
         catch (const std::runtime_error&)
         {
@@ -28,6 +30,7 @@ namespace YiZi::Server
     Application::~Application()
     {
         SListenSocket::Get()->Close();
+        MySQLConnector::Get()->Disconnect();
     }
 
     void Application::Run() const

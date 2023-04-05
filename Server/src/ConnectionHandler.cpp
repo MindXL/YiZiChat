@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include "BufferManager.h"
+#include "MySQLConnector.h"
 
 namespace YiZi::Server
 {
@@ -39,35 +40,51 @@ namespace YiZi::Server
         }
     }
 
+    const std::string ConnectionHandler::s_DatabaseUserJoinTimeExpr = std::move(
+        std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
+
     void ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
-        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+        const std::string phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
         std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
         password.remove_suffix(password.size() - password.find_first_of('\0'));
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+        mysqlx::RowResult result = tUser.select(
+                                            Database::User::Item::id,
+                                            Database::User::Item::nickname,
+                                            s_DatabaseUserJoinTimeExpr,
+                                            Database::User::Item::is_admin
+                                        )
+                                        .where("phone=:phone AND password=:password")
+                                        .bind("phone", phone).bind("password", password.data())
+                                        .execute();
 
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
         response_header->type = (uint8_t)Packet::PacketType::LoginResponse;
 
         auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(resBuffer + Packet::PACKET_HEADER_LENGTH);
 
-        // TODO: Require database support.
-        if (phone == "13312345678" && password == "password")
+        const bool isValid = result.count() == 1;
+        response_data->isValid = static_cast<uint8_t>(isValid);
+        if (isValid)
         {
-            response_data->isValid = true;
+            mysqlx::Row row = result.fetchOne();
+            response_data->id = row[0].get<decltype(response_data->id)>();
 
-            response_data->id = 0;
-            constexpr const char16_t* nickname = u"12as";
-            memcpy(response_data->nickname, nickname, sizeof(nickname) * sizeof(char16_t));
-            // TODO: Make sure a zero character follows (if nickname doesn't take up the whole space).
+            const std::u16string_view nickname((const char16_t*)row[1].getRawBytes().first, row[1].getRawBytes().second / sizeof(char16_t));
+            memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
+            if (nickname.length() < Database::User::ItemLength::NICKNAME_MAX_LENGTH)
+            {
+                for (decltype(sizeof(char16_t)) i = 0; i < sizeof(char16_t); ++i)
+                    response_data->nickname[nickname.length() * sizeof(char16_t) + i] = 0;
+            }
 
-            response_data->join_time = 0;
+            response_data->join_time = row[2].get<decltype(response_data->join_time)>();
 
-            response_data->isAdmin = true;
-        }
-        else
-        {
-            response_data->isValid = false;
+            response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(row[3].get<bool>());
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;

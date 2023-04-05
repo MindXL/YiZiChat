@@ -18,5 +18,7 @@ namespace YiZi::Server
         static void HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
         static void HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
         static void HandleTestRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
+
+        static const std::string s_DatabaseUserJoinTimeExpr; // Used in HandleLoginRequest()
     };
 }

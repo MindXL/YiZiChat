@@ -87,8 +87,7 @@ bool CLoginDlg::HandleLoginResponse()
     uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
     constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::LOGIN_RESPONSE_LENGTH;
 
-    auto* const socket = YiZi::Client::CSocket::Get();
-    socket->Receive(resBuffer, response_len);
+    YiZi::Client::CSocket::Get()->Receive(resBuffer, response_len);
 
     const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
     if (response_header->type != (uint8_t)YiZi::Packet::PacketType::LoginResponse)
@@ -104,7 +103,7 @@ bool CLoginDlg::HandleLoginResponse()
         return false;
     }
 
-    std::wstring_view nickname{(const wchar_t*)response_data->nickname, YiZi::Database::User::ItemLength::NICKNAME_MAX_LENGTH};
+    const std::wstring_view nickname{(const wchar_t*)response_data->nickname, YiZi::Database::User::ItemLength::NICKNAME_MAX_LENGTH};
     CString message{_T("登录成功。\n欢迎你：")};
     message.Append(nickname.data());
     AfxMessageBox(message);

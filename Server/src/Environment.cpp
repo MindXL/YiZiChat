@@ -88,11 +88,6 @@ namespace YiZi::Server
                 << "DBUsername: " << m_DBUsername << std::endl;
         }
 
-        std::cout << "Connecting to database... ";
-
-        // TODO: Test for database connection.
-        std::cout << "Success." << std::endl;
-
         m_IsDatabaseConfigReady = true;
     }
 }
