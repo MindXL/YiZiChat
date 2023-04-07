@@ -1,5 +1,7 @@
 #include "SSocket.h"
 
+#include <stdexcept>
+
 namespace YiZi::Server
 {
     void SListenSocket::Initialize()
