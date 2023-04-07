@@ -16,7 +16,7 @@
 // CClientApp
 
 BEGIN_MESSAGE_MAP(CClientApp, CWinApp)
-        ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+    ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 // CClientApp 构造
@@ -75,71 +75,7 @@ BOOL CClientApp::InitInstance()
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
     YiZi::Client::CSocket::Get()->Initialize();
-
-    /*
-    CClientDlg dlg;
-    m_pMainWnd = &dlg;
-    INT_PTR nResponse = dlg.DoModal();
-    if (nResponse == IDOK)
-    {
-        // TODO: 在此放置处理何时用
-        //  “确定”来关闭对话框的代码
-    }
-    else if (nResponse == IDCANCEL)
-    {
-        // TODO: 在此放置处理何时用
-        //  “取消”来关闭对话框的代码
-    }
-    else if (nResponse == -1)
-    {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-    }
-    */
-
-    CDialogEx* dlg = nullptr;
-    INT_PTR nResponse = 0;
-
-    dlg = new CLoginDlg();
-    //m_pMainWnd = dlg;
-    nResponse = dlg->DoModal();
-    if (nResponse == IDOK)
-    {
-        // TODO: 在此放置处理何时用
-        //  “确定”来关闭对话框的代码
-    }
-    else if (nResponse == IDCANCEL)
-    {
-        // TODO: 在此放置处理何时用
-        //  “取消”来关闭对话框的代码
-    }
-    else if (nResponse == -1)
-    {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-    }
-    delete dlg;
-
-    dlg = new CChatDlg{};
-    //m_pMainWnd = dlg;
-    nResponse = dlg->DoModal();
-    if (nResponse == IDOK)
-    {
-        // TODO: 在此放置处理何时用
-        //  “确定”来关闭对话框的代码
-    }
-    else if (nResponse == IDCANCEL)
-    {
-        // TODO: 在此放置处理何时用
-        //  “取消”来关闭对话框的代码
-    }
-    else if (nResponse == -1)
-    {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-    }
-    delete dlg;
-
+    Main();
     YiZi::Client::CSocket::Get()->Close();
 
     // 删除上面创建的 shell 管理器。
@@ -155,4 +91,36 @@ BOOL CClientApp::InitInstance()
     // 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
     //  而不是启动应用程序的消息泵。
     return FALSE;
+}
+
+void CClientApp::Main()
+{
+    CDialogEx* dlg = nullptr;
+    INT_PTR nResponse = 0;
+
+    dlg = new CLoginDlg();
+    //m_pMainWnd = dlg;
+    nResponse = dlg->DoModal();
+    if (nResponse == IDCANCEL)
+        return;
+    if (nResponse == -1)
+    {
+        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+    }
+    delete dlg;
+
+    dlg = new CChatDlg{};
+    //m_pMainWnd = dlg;
+    nResponse = dlg->DoModal();
+    if (nResponse == IDCANCEL)
+        return;
+    if (nResponse == -1)
+    {
+        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+    }
+    delete dlg;
+
+    YiZi::Client::CSocket::Get()->Close();
 }

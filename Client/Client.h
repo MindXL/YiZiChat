@@ -19,7 +19,9 @@ public:
     CClientApp();
 
     // 重写
-public:
+private:
+    static void Main();
+
     BOOL InitInstance() override;
 
     // 实现
