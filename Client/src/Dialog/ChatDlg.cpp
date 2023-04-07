@@ -30,8 +30,8 @@ void CChatDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
-        ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatDlg::OnBnClickedButtonSend)
-        ON_BN_CLICKED(IDC_BUTTON_EMPTY_TRANSCRIPT, &CChatDlg::OnBnClickedButtonEmptyTranscript)
+    ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatDlg::OnBnClickedButtonSend)
+    ON_BN_CLICKED(IDC_BUTTON_EMPTY_TRANSCRIPT, &CChatDlg::OnBnClickedButtonEmptyTranscript)
 END_MESSAGE_MAP()
 
 bool CChatDlg::HandleChatMessageRequest() const
@@ -41,12 +41,7 @@ bool CChatDlg::HandleChatMessageRequest() const
     const int message_len = m_csMessage.GetLength();
     memcpy_s(request_data->content, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH,
              m_csMessage.GetString(), message_len * sizeof(wchar_t));
-
-    if (message_len < YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH)
-    {
-        for (int i = 0; i < sizeof(wchar_t); ++i)
-            request_data->content[message_len * sizeof(wchar_t) + i] = '\0';
-    }
+    *((char16_t*)request_data->content + message_len) = u'\0';
 
     YiZi::Client::CSocket::Get()->Send(m_pChatRequestBuffer, s_iChatRequestBufferLen);
 

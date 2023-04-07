@@ -23,8 +23,8 @@ namespace YiZi::Packet
 
     struct LoginRequest
     {
-        uint8_t phone[Database::User::ItemLength::PHONE_LENGTH];
-        uint8_t password[Database::User::ItemLength::PASSWORD_MAX_LENGTH];
+        uint8_t phone[Database::User::ItemLength::PHONE_LENGTH + 1];
+        uint8_t password[Database::User::ItemLength::PASSWORD_MAX_LENGTH + 1];
     };
 
     static constexpr int LOGIN_REQUEST_LENGTH = sizeof(LoginRequest);
@@ -34,7 +34,7 @@ namespace YiZi::Packet
         uint8_t isValid; // Whether the user exists in database;
 
         uint32_t id;
-        uint8_t nickname[Database::User::ItemLength::NICKNAME_MAX_LENGTH * sizeof(char16_t)];
+        uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];
         uint32_t join_time;
         uint8_t isAdmin;
     };
@@ -43,16 +43,16 @@ namespace YiZi::Packet
 
     struct ChatMessageRequest
     {
-        uint8_t content[Database::Transcript::ItemLength::CONTENT_MAX_LENGTH * sizeof(char16_t)];
+        uint8_t content[(Database::Transcript::ItemLength::CONTENT_MAX_LENGTH + 1) * sizeof(char16_t)];
     };
 
     static constexpr int CHAT_MESSAGE_REQUEST_LENGTH = sizeof(ChatMessageRequest);
 
     struct ChatMessageResponse
     {
-        uint8_t nickname[Database::User::ItemLength::NICKNAME_MAX_LENGTH * sizeof(char16_t)];
+        uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];
         uint32_t timestamp;
-        uint8_t content[Database::Transcript::ItemLength::CONTENT_MAX_LENGTH * sizeof(char16_t)];
+        uint8_t content[(Database::Transcript::ItemLength::CONTENT_MAX_LENGTH + 1) * sizeof(char16_t)];
     };
 
     static constexpr int CHAT_MESSAGE_RESPONSE_LENGTH = sizeof(ChatMessageResponse);
@@ -82,8 +82,6 @@ namespace YiZi::Packet
                    TEST_REQUEST_LENGTH,
                    0
                });
-
-        //return PACKET_HEADER_LENGTH + TEST_REQUEST_LENGTH;
     }
 
     static constexpr int RESPONSE_MAX_LENGTH()
@@ -94,8 +92,6 @@ namespace YiZi::Packet
                    TEST_RESPONSE_LENGTH,
                    0
                });
-
-        //return PACKET_HEADER_LENGTH + TEST_RESPONSE_LENGTH;
     }
 #ifdef YZ_CLIENT
 #define max(a,b) (((a) > (b)) ? (a) : (b))

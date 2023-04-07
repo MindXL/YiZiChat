@@ -27,7 +27,7 @@ void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CLoginDlg, CDialogEx)
-        ON_BN_CLICKED(IDOK, &CLoginDlg::OnBnClickedOk)
+    ON_BN_CLICKED(IDOK, &CLoginDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 // CLoginDlg 消息处理程序
@@ -67,10 +67,10 @@ bool CLoginDlg::HandleLoginRequest()
     auto* const request_data = reinterpret_cast<YiZi::Packet::LoginRequest*>(reqBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
     memcpy_s(request_data->phone, YiZi::Database::User::ItemLength::PHONE_LENGTH,
              phone.GetString(), phone.GetLength());
+    request_data->phone[YiZi::Database::User::ItemLength::PHONE_LENGTH] = '\0';
     memcpy_s(request_data->password, YiZi::Database::User::ItemLength::PASSWORD_MAX_LENGTH,
              password.GetString(), password.GetLength());
-    if (password.GetLength() < YiZi::Database::User::ItemLength::PASSWORD_MAX_LENGTH)
-        request_data->password[password.GetLength()] = '\0';
+    request_data->password[password.GetLength()] = '\0';
 
     auto* const socket = YiZi::Client::CSocket::Get();
     if (!socket->Connect(_T("127.0.0.1"), 5000) || !socket->Send(reqBuffer, request_len))

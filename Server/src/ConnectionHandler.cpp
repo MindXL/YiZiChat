@@ -46,7 +46,7 @@ namespace YiZi::Server
     void ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
-        std::string phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
         std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
         password.remove_suffix(password.size() - password.find_first_of('\0'));
 
@@ -59,7 +59,7 @@ namespace YiZi::Server
                                             Database::User::Item::is_admin
                                         )
                                         .where("phone=:phone AND password=:password")
-                                        .bind("phone", phone).bind("password", password.data())
+                                        .bind("phone", phone.data()).bind("password", password.data())
                                         .execute();
 
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
@@ -76,11 +76,7 @@ namespace YiZi::Server
 
             const std::u16string_view nickname((const char16_t*)row[1].getRawBytes().first, row[1].getRawBytes().second / sizeof(char16_t));
             memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
-            if (nickname.length() < Database::User::ItemLength::NICKNAME_MAX_LENGTH)
-            {
-                for (decltype(sizeof(char16_t)) i = 0; i < sizeof(char16_t); ++i)
-                    response_data->nickname[nickname.length() * sizeof(char16_t) + i] = 0;
-            }
+            *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
 
             response_data->join_time = row[2].get<decltype(response_data->join_time)>();
 
@@ -90,7 +86,7 @@ namespace YiZi::Server
             LoginMap::Get()->emplace(response_data->id,
                                      UserInfo
                                      {
-                                         .phone = std::move(phone),
+                                         .phone = std::string{phone},
                                          .nickname = std::u16string{nickname},
                                          .join_time = response_data->join_time,
                                          .is_admin = is_admin,
