@@ -2,11 +2,11 @@
 
 #include <arpa/inet.h>
 #include <iostream>
-#include <cstring>
 #include <string_view>
 
 #include "BufferManager.h"
 #include "MySQLConnector.h"
+#include "LoginMap.h"
 
 namespace YiZi::Server
 {
@@ -46,7 +46,7 @@ namespace YiZi::Server
     void ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
-        const std::string phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+        std::string phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
         std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
         password.remove_suffix(password.size() - password.find_first_of('\0'));
 
@@ -84,7 +84,18 @@ namespace YiZi::Server
 
             response_data->join_time = row[2].get<decltype(response_data->join_time)>();
 
-            response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(row[3].get<bool>());
+            const bool is_admin = row[3].get<bool>();
+            response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
+
+            LoginMap::Get()->emplace(response_data->id,
+                                     UserInfo
+                                     {
+                                         .phone = std::move(phone),
+                                         .nickname = std::u16string{nickname},
+                                         .join_time = response_data->join_time,
+                                         .is_admin = is_admin,
+                                         .client = client
+                                     });
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
