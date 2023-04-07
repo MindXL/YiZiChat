@@ -6,6 +6,8 @@
 #include "afxdialogex.h"
 #include "ChatDlg.h"
 
+#include "../Dialog/UserInfoDlg.h"
+
 // CChatDlg 对话框
 
 IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
@@ -32,6 +34,7 @@ void CChatDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatDlg::OnBnClickedButtonSend)
     ON_BN_CLICKED(IDC_BUTTON_EMPTY_TRANSCRIPT, &CChatDlg::OnBnClickedButtonEmptyTranscript)
+    ON_COMMAND(ID_USER_INFO, &CChatDlg::OnUserInfo)
 END_MESSAGE_MAP()
 
 bool CChatDlg::HandleChatMessageRequest() const
@@ -80,4 +83,10 @@ void CChatDlg::OnBnClickedButtonEmptyTranscript()
 {
     m_csTranscript.Empty();
     UpdateData(false);
+}
+
+
+void CChatDlg::OnUserInfo()
+{
+    CUserInfoDlg{}.DoModal();
 }

@@ -10,21 +10,29 @@
 #define IDR_MAINFRAME                   128
 #define IDD_LOGIN_DIALOG                129
 #define IDD_CHAT_DIALOG                 131
+#define IDR_CHAT_MENU                   133
+#define IDD_USER_INFO_DIALOG            134
 #define IDC_txtPhone                    1000
 #define IDC_txtPassword                 1002
 #define IDC_EDIT_TRANSCRIPT             1003
 #define IDC_EDIT_MESSAGE                1004
 #define IDC_BUTTON_SEND                 1005
-#define IDC_BUTTON2                     1006
 #define IDC_BUTTON_EMPTY_TRANSCRIPT     1006
+#define IDC_EDIT_PHONE                  1007
+#define IDC_EDIT_PASSWORD               1008
+#define IDC_EDIT_NICKNAME               1009
+#define IDC_EDIT4                       1010
+#define IDC_EDIT_JOIN_TIME              1010
+#define ID_32771                        32771
+#define ID_USER_INFO                    32772
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_COMMAND_VALUE         32773
+#define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

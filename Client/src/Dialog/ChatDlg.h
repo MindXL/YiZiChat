@@ -34,4 +34,5 @@ private:
     CString m_csMessage;
     afx_msg void OnBnClickedButtonSend();
     afx_msg void OnBnClickedButtonEmptyTranscript();
+    afx_msg void OnUserInfo();
 };
