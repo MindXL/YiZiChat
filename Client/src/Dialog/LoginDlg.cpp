@@ -6,6 +6,8 @@
 #include "afxdialogex.h"
 #include "LoginDlg.h"
 
+#include "../../src/Core/User.h"
+
 // CLoginDlg 对话框
 
 IMPLEMENT_DYNAMIC(CLoginDlg, CDialogEx)
@@ -103,9 +105,14 @@ bool CLoginDlg::HandleLoginResponse()
         return false;
     }
 
-    const std::wstring_view nickname{(const wchar_t*)response_data->nickname, YiZi::Database::User::ItemLength::NICKNAME_MAX_LENGTH};
+    YiZi::Client::User::New(response_data->id,
+                            std::move(CStringA{m_csPhone}),
+                            std::move(CString{(const wchar_t*)response_data->nickname, YiZi::Database::User::ItemLength::NICKNAME_MAX_LENGTH}),
+                            response_data->join_time,
+                            static_cast<bool>(response_data->isAdmin));
+
     CString message{_T("登录成功。\n欢迎你：")};
-    message.Append(nickname.data());
+    message.Append(YiZi::Client::User::Get()->GetNickname());
     AfxMessageBox(message);
 
     return true;
