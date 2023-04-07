@@ -4,9 +4,10 @@ namespace YiZi::Client
 {
     class User
     {
-    public:
+    private:
         User(uint32_t id, CStringA phone, CString nickname, uint32_t join_time, bool is_admin);
 
+    public:
         [[nodiscard]] uint32_t GetId() const { return m_Id; }
         [[nodiscard]] const CStringA& GetPhone() const { return m_Phone; }
         [[nodiscard]] const CString& GetNickname() const { return m_Nickname; }
