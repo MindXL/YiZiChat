@@ -19,31 +19,29 @@ namespace YiZi::Server
             if (!client->Receive(reqBuffer, Packet::REQUEST_MAX_LENGTH()))
                 break;
 
-            Dispatch(client, reqBuffer, resBuffer);
+            // TODO: Use multi-thread to wrap Dispatch().
+            if (!Dispatch(client, reqBuffer, resBuffer))
+                break;
         }
 
         BufferManager::Get()->Return(reqBuffer);
     }
 
-    void ConnectionHandler::Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer, uint8_t* const resBuffer)
+    bool ConnectionHandler::Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer, uint8_t* const resBuffer)
     {
         switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(reqBuffer);
             Packet::PacketType{request_header->type})
         {
-        case Packet::PacketType::TestRequest: HandleTestRequest(client, reqBuffer, resBuffer);
-            break;
-        case Packet::PacketType::LoginRequest: HandleLoginRequest(client, reqBuffer, resBuffer);
-            break;
-        case Packet::PacketType::ChatMessageRequest: HandleChatMessageRequest(client, reqBuffer, resBuffer);
-            break;
-        default: ;
+        case Packet::PacketType::LoginRequest: return HandleLoginRequest(client, reqBuffer, resBuffer);
+        case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest(client, reqBuffer, resBuffer);
+        default: return false;
         }
     }
 
     const std::string ConnectionHandler::s_DatabaseUserJoinTimeExpr = std::move(
         std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
 
-    void ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    bool ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
         const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
@@ -95,10 +93,13 @@ namespace YiZi::Server
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
-        bool success = client->Send(resBuffer, response_len);
+        if (const bool success = client->Send(resBuffer, response_len);
+            !success)
+            return false;
+        return isValid;
     }
 
-    void ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    bool ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
         const auto* const request_data = (Packet::ChatMessageRequest*)(reqBuffer + Packet::PACKET_HEADER_LENGTH);
 
@@ -112,27 +113,6 @@ namespace YiZi::Server
         /* Test code */
 
         // TODO: Send message to all other users.
-    }
-
-    void ConnectionHandler::HandleTestRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer,
-                                              uint8_t* const resBuffer)
-    {
-        const auto* const request_data = reinterpret_cast<Packet::TestRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
-
-        const std::string_view content{(const char*)request_data->message, request_data->length};
-
-        std::cout << "Got a test message: " << content << std::endl;
-
-        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
-        response_header->type = (uint8_t)Packet::PacketType::TestResponse;
-
-        auto* const response_data = reinterpret_cast<Packet::TestResponse*>(resBuffer + Packet::PACKET_HEADER_LENGTH);
-
-        const std::string message{"Welcome to YiZiChat."};
-        memcpy(response_data->message, message.data(), message.length());
-        response_data->length = (uint32_t)message.length();
-
-        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::TEST_RESPONSE_LENGTH;
-        bool success = client->Send(resBuffer, response_len);
+        return true;
     }
 }

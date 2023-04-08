@@ -10,8 +10,6 @@ namespace YiZi::Packet
     {
         LoginRequest, LoginResponse,
         ChatMessageRequest, ChatMessageResponse,
-
-        TestRequest, TestResponse
     };
 
     struct PacketHeader
@@ -57,17 +55,6 @@ namespace YiZi::Packet
 
     static constexpr int CHAT_MESSAGE_RESPONSE_LENGTH = sizeof(ChatMessageResponse);
 
-    struct TestRequest
-    {
-        uint32_t length;
-        uint8_t message[30];
-    };
-
-    typedef TestRequest TestResponse;
-
-    static constexpr int TEST_REQUEST_LENGTH = sizeof(TestRequest);
-    static constexpr int TEST_RESPONSE_LENGTH = sizeof(TestResponse);
-
     // macro "max" is defined in minwindef.h
 #ifdef YZ_CLIENT
 #ifdef max
@@ -79,7 +66,6 @@ namespace YiZi::Packet
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_REQUEST_LENGTH,
                    CHAT_MESSAGE_REQUEST_LENGTH,
-                   TEST_REQUEST_LENGTH,
                    0
                });
     }
@@ -89,7 +75,6 @@ namespace YiZi::Packet
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_RESPONSE_LENGTH,
                    CHAT_MESSAGE_RESPONSE_LENGTH,
-                   TEST_RESPONSE_LENGTH,
                    0
                });
     }
