@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 
 #include "SSocket.h"
@@ -8,7 +7,7 @@
 
 namespace YiZi::Server
 {
-    class LoginMap final : public std::unordered_map<std::shared_ptr<SAcceptSocket>, ClientInfo>
+    class LoginMap final : public std::unordered_map<SAcceptSocket*, ClientInfo>
     {
     public:
         static LoginMap* Get() { return s_LoginMap; }

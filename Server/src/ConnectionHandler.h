@@ -10,14 +10,24 @@ namespace YiZi::Server
     class ConnectionHandler
     {
     public:
-        static void Handle(const std::shared_ptr<Server::SAcceptSocket>& client);
+        ~ConnectionHandler();
+
+        static void Handle(SAcceptSocket* const client) { ConnectionHandler{client}.Run(); }
 
     private:
-        static bool Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
+        explicit ConnectionHandler(SAcceptSocket* client);
 
-        static bool HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
-        static bool HandleLogoutRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
-        static bool HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer);
+        void Run() const;
+        [[nodiscard]] bool Dispatch() const;
+
+        [[nodiscard]] bool HandleLoginRequest() const;
+        [[nodiscard]] bool HandleLogoutRequest() const;
+        [[nodiscard]] bool HandleChatMessageRequest() const;
+
+    private:
+        SAcceptSocket* const m_Client;
+        uint8_t* const m_ReqBuffer;
+        uint8_t* const m_ResBuffer;
 
         static const std::string s_DatabaseUserJoinTimeExpr; // Used in HandleLoginRequest()
     };

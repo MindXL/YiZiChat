@@ -10,42 +10,47 @@
 
 namespace YiZi::Server
 {
-    void ConnectionHandler::Handle(const std::shared_ptr<Server::SAcceptSocket>& client)
-    {
-        auto [reqBuffer, resBuffer] = BufferManager::Get()->Fetch();
+    const std::string ConnectionHandler::s_DatabaseUserJoinTimeExpr = std::move(
+        std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
 
+    ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
+        : m_Client{client}, m_ReqBuffer{BufferManager::Get()->Fetch().first}, m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
+
+    ConnectionHandler::~ConnectionHandler()
+    {
+        BufferManager::Get()->Return(m_ReqBuffer);
+        m_Client->Close();
+        delete m_Client;
+    }
+
+    void ConnectionHandler::Run() const
+    {
         while (true)
         {
-            if (!client->Receive(reqBuffer, Packet::REQUEST_MAX_LENGTH()))
+            if (!m_Client->Receive(m_ReqBuffer, Packet::REQUEST_MAX_LENGTH()))
                 break;
 
             // TODO: Use multi-thread to wrap Dispatch().
-            if (!Dispatch(client, reqBuffer, resBuffer))
+            if (!Dispatch())
                 break;
         }
-
-        client->Close();
-        BufferManager::Get()->Return(reqBuffer);
     }
 
-    bool ConnectionHandler::Dispatch(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* const reqBuffer, uint8_t* const resBuffer)
+    bool ConnectionHandler::Dispatch() const
     {
-        switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(reqBuffer);
+        switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(m_ReqBuffer);
             Packet::PacketType{request_header->type})
         {
-        case Packet::PacketType::LoginRequest: return HandleLoginRequest(client, reqBuffer, resBuffer);
-        case Packet::PacketType::LogoutRequest: return HandleLogoutRequest(client, reqBuffer, resBuffer);
-        case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest(client, reqBuffer, resBuffer);
+        case Packet::PacketType::LoginRequest: return HandleLoginRequest();
+        case Packet::PacketType::LogoutRequest: return HandleLogoutRequest();
+        case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         default: return false;
         }
     }
 
-    const std::string ConnectionHandler::s_DatabaseUserJoinTimeExpr = std::move(
-        std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
-
-    bool ConnectionHandler::HandleLoginRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    bool ConnectionHandler::HandleLoginRequest() const
     {
-        const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
         const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
         std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
         password.remove_suffix(password.size() - password.find_first_of('\0'));
@@ -62,10 +67,10 @@ namespace YiZi::Server
                                         .bind("phone", phone.data()).bind("password", password.data())
                                         .execute();
 
-        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(resBuffer);
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
         response_header->type = (uint8_t)Packet::PacketType::LoginResponse;
 
-        auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(resBuffer + Packet::PACKET_HEADER_LENGTH);
+        auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
 
         const bool isValid = result.count() == 1;
         response_data->isValid = static_cast<uint8_t>(isValid);
@@ -83,7 +88,7 @@ namespace YiZi::Server
             const bool is_admin = row[3].get<bool>();
             response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
 
-            LoginMap::Get()->emplace(client,
+            LoginMap::Get()->emplace(m_Client,
                                      ClientInfo
                                      {
                                          .id = response_data->id,
@@ -95,25 +100,25 @@ namespace YiZi::Server
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
-        if (const bool success = client->Send(resBuffer, response_len);
+        if (const bool success = m_Client->Send(m_ResBuffer, response_len);
             !success)
             return false;
         return isValid;
     }
 
-    bool ConnectionHandler::HandleLogoutRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    bool ConnectionHandler::HandleLogoutRequest() const
     {
-        LoginMap::Get()->erase(client);
+        LoginMap::Get()->erase(m_Client);
         return false;
     }
 
-    bool ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    bool ConnectionHandler::HandleChatMessageRequest() const
     {
         const auto* const s_LoginMap = LoginMap::Get();
-        if (s_LoginMap->find(client) == s_LoginMap->cend())
+        if (s_LoginMap->find(m_Client) == s_LoginMap->cend())
             return false;
 
-        const auto* const request_data = (Packet::ChatMessageRequest*)(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const auto* const request_data = (Packet::ChatMessageRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
 
         /* Test code */
         std::u16string_view content{(const char16_t*)request_data->content, Database::Transcript::ItemLength::CONTENT_MAX_LENGTH};

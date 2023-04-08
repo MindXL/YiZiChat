@@ -39,7 +39,7 @@ namespace YiZi::Server
 
         while (true)
         {
-            auto client = std::make_shared<SAcceptSocket>();
+            auto* const client = new SAcceptSocket{};
             try
             {
                 client->Accept();
@@ -51,7 +51,6 @@ namespace YiZi::Server
             }
 
             std::thread(ConnectionHandler::Handle, client).detach();
-            client = nullptr;
 
             std::this_thread::yield();
         }
