@@ -109,9 +109,11 @@ namespace YiZi::Server
 
     bool ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
     {
-        const auto* const request_data = (Packet::ChatMessageRequest*)(reqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const auto* const s_LoginMap = LoginMap::Get();
+        if (s_LoginMap->find(client) == s_LoginMap->cend())
+            return false;
 
-        // TODO: If user is not logged in.
+        const auto* const request_data = (Packet::ChatMessageRequest*)(reqBuffer + Packet::PACKET_HEADER_LENGTH);
 
         /* Test code */
         std::u16string_view content{(const char16_t*)request_data->content, Database::Transcript::ItemLength::CONTENT_MAX_LENGTH};
