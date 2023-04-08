@@ -34,6 +34,7 @@ namespace YiZi::Server
             Packet::PacketType{request_header->type})
         {
         case Packet::PacketType::LoginRequest: return HandleLoginRequest(client, reqBuffer, resBuffer);
+        case Packet::PacketType::LogoutRequest: return HandleLogoutRequest(client, reqBuffer, resBuffer);
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest(client, reqBuffer, resBuffer);
         default: return false;
         }
@@ -98,6 +99,12 @@ namespace YiZi::Server
             !success)
             return false;
         return isValid;
+    }
+
+    bool ConnectionHandler::HandleLogoutRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)
+    {
+        LoginMap::Get()->erase(client);
+        return false;
     }
 
     bool ConnectionHandler::HandleChatMessageRequest(const std::shared_ptr<Server::SAcceptSocket>& client, uint8_t* reqBuffer, uint8_t* resBuffer)

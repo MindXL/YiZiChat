@@ -25,6 +25,7 @@ protected:
 private:
     bool HandleChatMessageRequest() const;
     bool HandleChatMessageResponse();
+    static void HandleLogoutRequest();
 
     static constexpr int s_iChatRequestBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_REQUEST_LENGTH;
     // 聊天界面单独设定一个Request buffer.
@@ -36,4 +37,5 @@ private:
     afx_msg void OnBnClickedButtonEmptyTranscript();
     afx_msg void OnUserInfo();
     afx_msg void OnAbout();
+    afx_msg void OnLogout();
 };

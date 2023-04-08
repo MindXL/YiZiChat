@@ -9,6 +9,9 @@
 #include "../Dialog/UserInfoDlg.h"
 #include "../Dialog/AboutDlg.h"
 
+#include "../Core/Buffer.h"
+#include "../Core/User.h"
+
 // CChatDlg 对话框
 
 IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
@@ -37,6 +40,7 @@ BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_EMPTY_TRANSCRIPT, &CChatDlg::OnBnClickedButtonEmptyTranscript)
     ON_COMMAND(ID_USER_INFO, &CChatDlg::OnUserInfo)
     ON_COMMAND(ID_ABOUT, &CChatDlg::OnAbout)
+    ON_COMMAND(ID_LOGOUT, &CChatDlg::OnLogout)
 END_MESSAGE_MAP()
 
 bool CChatDlg::HandleChatMessageRequest() const
@@ -57,6 +61,17 @@ bool CChatDlg::HandleChatMessageResponse()
 {
     // TODO: Handle receiving messages from other clients.
     return true;
+}
+
+void CChatDlg::HandleLogoutRequest()
+{
+    auto* const reqBuffer = YiZi::Client::Buffer::Get()->GetReqBuffer();
+
+    auto* const request_header = (YiZi::Packet::PacketHeader*)reqBuffer;
+    request_header->type = (uint8_t)YiZi::Packet::PacketType::LogoutRequest;
+
+    constexpr int request_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::LOGOUT_REQUEST_LENGTH;
+    YiZi::Client::CSocket::Get()->Send(reqBuffer, request_len);
 }
 
 // CChatDlg 消息处理程序
@@ -95,4 +110,16 @@ void CChatDlg::OnUserInfo()
 void CChatDlg::OnAbout()
 {
     CAboutDlg{}.DoModal();
+}
+
+void CChatDlg::OnLogout()
+{
+    if (AfxMessageBox(_T("是否退出应用？"), MB_YESNO) == IDNO)
+        return;
+
+    //WSACancelBlockingCall();
+
+    HandleLogoutRequest();
+
+    YiZi::Client::User::Delete();
 }
