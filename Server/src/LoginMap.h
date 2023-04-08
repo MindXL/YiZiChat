@@ -1,25 +1,14 @@
 #pragma once
 
-#include <cstdint>
-#include <unordered_map>
-#include <string>
 #include <memory>
+#include <unordered_map>
 
 #include "SSocket.h"
+#include "../utils/ClientInfo.h"
 
 namespace YiZi::Server
 {
-    struct UserInfo
-    {
-        const std::string phone;
-        const std::u16string nickname;
-        const uint32_t join_time;
-        const bool is_admin;
-
-        const std::shared_ptr<SAcceptSocket>& client;
-    };
-
-    class LoginMap final : public std::unordered_map<uint32_t, UserInfo>
+    class LoginMap final : public std::unordered_map<std::shared_ptr<SAcceptSocket>, ClientInfo>
     {
     public:
         static LoginMap* Get() { return s_LoginMap; }

@@ -83,14 +83,14 @@ namespace YiZi::Server
             const bool is_admin = row[3].get<bool>();
             response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
 
-            LoginMap::Get()->emplace(response_data->id,
-                                     UserInfo
+            LoginMap::Get()->emplace(client,
+                                     ClientInfo
                                      {
+                                         .id = response_data->id,
                                          .phone = std::string{phone},
                                          .nickname = std::u16string{nickname},
                                          .join_time = response_data->join_time,
-                                         .is_admin = is_admin,
-                                         .client = client
+                                         .is_admin = is_admin
                                      });
         }
 
