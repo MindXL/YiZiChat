@@ -94,7 +94,7 @@ bool CLoginDlg::HandleLoginResponse()
     const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
     if (response_header->type != (uint8_t)YiZi::Packet::PacketType::LoginResponse)
     {
-        AfxMessageBox(_T("服务器错误。请重试"));
+        AfxMessageBox(_T("服务器错误。请重试。"));
         return false;
     }
 
@@ -102,6 +102,11 @@ bool CLoginDlg::HandleLoginResponse()
     if (!(bool)response_data->isValid)
     {
         AfxMessageBox(_T("账号或密码错误。请重试。"));
+        return false;
+    }
+    if (response_data->id == 0)
+    {
+        AfxMessageBox(_T("服务器错误。请重试。"));
         return false;
     }
 

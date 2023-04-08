@@ -13,7 +13,7 @@ CREATE TABLE `User` (
     `nickname` VARCHAR(20) UNIQUE NOT NULL CHECK(length(`nickname`) >= 2),
     `join_time` TIMESTAMP NOT NULL,
     `is_admin` TINYINT NOT NULL DEFAULT 0 CHECK(`is_admin` IN (0, 1))
-);
+) AUTO_INCREMENT=1;
 
 CREATE TABLE `Channel` (
     `id` INT PRIMARY KEY AUTO_INCREMENT,
