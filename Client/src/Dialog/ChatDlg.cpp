@@ -7,6 +7,7 @@
 #include "ChatDlg.h"
 
 #include "../Dialog/UserInfoDlg.h"
+#include "../Dialog/AboutDlg.h"
 
 // CChatDlg 对话框
 
@@ -35,6 +36,7 @@ BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatDlg::OnBnClickedButtonSend)
     ON_BN_CLICKED(IDC_BUTTON_EMPTY_TRANSCRIPT, &CChatDlg::OnBnClickedButtonEmptyTranscript)
     ON_COMMAND(ID_USER_INFO, &CChatDlg::OnUserInfo)
+    ON_COMMAND(ID_ABOUT, &CChatDlg::OnAbout)
 END_MESSAGE_MAP()
 
 bool CChatDlg::HandleChatMessageRequest() const
@@ -85,8 +87,12 @@ void CChatDlg::OnBnClickedButtonEmptyTranscript()
     UpdateData(false);
 }
 
-
 void CChatDlg::OnUserInfo()
 {
     CUserInfoDlg{}.DoModal();
+}
+
+void CChatDlg::OnAbout()
+{
+    CAboutDlg{}.DoModal();
 }

@@ -35,4 +35,5 @@ private:
     afx_msg void OnBnClickedButtonSend();
     afx_msg void OnBnClickedButtonEmptyTranscript();
     afx_msg void OnUserInfo();
+    afx_msg void OnAbout();
 };

@@ -11,37 +11,6 @@
 #define new DEBUG_NEW
 #endif
 
-// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
-
-class CAboutDlg final : public CDialogEx
-{
-public:
-    CAboutDlg();
-
-    // 对话框数据
-#ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
-#endif
-
-protected:
-    void DoDataExchange(CDataExchange* pDX) override; // DDX/DDV 支持
-
-    // 实现
-protected:
-    DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg()
-    : CDialogEx(IDD_ABOUTBOX) {}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-    CDialogEx::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-END_MESSAGE_MAP()
-
 // CClientDlg 对话框
 
 CClientDlg::CClientDlg(CWnd* pParent /*=nullptr*/)
@@ -56,9 +25,9 @@ void CClientDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CClientDlg, CDialogEx)
-        ON_WM_SYSCOMMAND()
-        ON_WM_PAINT()
-        ON_WM_QUERYDRAGICON()
+    ON_WM_SYSCOMMAND()
+    ON_WM_PAINT()
+    ON_WM_QUERYDRAGICON()
 END_MESSAGE_MAP()
 
 // CClientDlg 消息处理程序
@@ -96,18 +65,18 @@ BOOL CClientDlg::OnInitDialog()
     return TRUE; // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-void CClientDlg::OnSysCommand(const UINT nID, const LPARAM lParam)
-{
-    if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-    {
-        CAboutDlg dlgAbout;
-        dlgAbout.DoModal();
-    }
-    else
-    {
-        CDialogEx::OnSysCommand(nID, lParam);
-    }
-}
+//void CClientDlg::OnSysCommand(const UINT nID, const LPARAM lParam)
+//{
+//    if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+//    {
+//        CAboutDlg dlgAbout;
+//        dlgAbout.DoModal();
+//    }
+//    else
+//    {
+//        CDialogEx::OnSysCommand(nID, lParam);
+//    }
+//}
 
 // 如果向对话框添加最小化按钮，则需要下面的代码
 //  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，

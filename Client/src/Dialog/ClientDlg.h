@@ -24,7 +24,7 @@ protected:
 
     // 生成的消息映射函数
     BOOL OnInitDialog() override;
-    afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+    //afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
     afx_msg void OnPaint();
     afx_msg [[nodiscard]] HCURSOR OnQueryDragIcon();
     DECLARE_MESSAGE_MAP()
