@@ -24,6 +24,7 @@ namespace YiZi::Server
                 break;
         }
 
+        client->Close();
         BufferManager::Get()->Return(reqBuffer);
     }
 
