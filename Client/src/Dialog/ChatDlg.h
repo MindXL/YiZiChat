@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
-#include "../../../YiZiLib/src/Packet.h"
+
+#define WM_RECVDATA (WM_USER + 1)
 
 // CChatDlg 对话框
 
@@ -23,19 +24,30 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
+    BOOL OnInitDialog() override;
+
     bool HandleChatMessageRequest() const;
-    bool HandleChatMessageResponse();
+    void HandleChatMessageResponse();
     static void HandleLogoutRequest();
 
-    static constexpr int s_iChatRequestBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_REQUEST_LENGTH;
-    // 聊天界面单独设定一个Request buffer.
-    uint8_t* m_pChatRequestBuffer = new uint8_t[s_iChatRequestBufferLen]{};
+    static void ListenChatMessage(HWND hWnd);
 
-    CString m_csTranscript;
-    CString m_csMessage;
     afx_msg void OnBnClickedButtonSend();
     afx_msg void OnBnClickedButtonEmptyTranscript();
     afx_msg void OnUserInfo();
     afx_msg void OnAbout();
     afx_msg void OnLogout();
+    afx_msg LRESULT OnRecvData(WPARAM wParam, LPARAM lParam);
+
+private:
+    static constexpr int s_iChatRequestBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_REQUEST_LENGTH;
+    static constexpr int s_iChatResponseBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
+    // 聊天界面单独设定一个Request buffer和Response buffer.
+    uint8_t* m_pChatRequestBuffer = new uint8_t[s_iChatRequestBufferLen]{};
+    static inline uint8_t* m_pChatResponseBuffer = new uint8_t[s_iChatResponseBufferLen]{};
+
+    std::thread m_tListenChatMessageThread{};
+
+    CString m_csTranscript;
+    CString m_csMessage;
 };

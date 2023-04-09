@@ -1,7 +1,6 @@
 #include "ConnectionHandler.h"
 
 #include <arpa/inet.h>
-#include <iostream>
 #include <string_view>
 
 #include "BufferManager.h"
@@ -115,19 +114,42 @@ namespace YiZi::Server
     bool ConnectionHandler::HandleChatMessageRequest() const
     {
         const auto* const s_LoginMap = LoginMap::Get();
-        if (s_LoginMap->find(m_Client) == s_LoginMap->cend())
+        const auto client_it = s_LoginMap->find(m_Client);
+        if (client_it == s_LoginMap->cend())
             return false;
 
         const auto* const request_data = (Packet::ChatMessageRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
 
-        /* Test code */
-        std::u16string_view content{(const char16_t*)request_data->content, Database::Transcript::ItemLength::CONTENT_MAX_LENGTH};
-        content.remove_suffix(content.length() - content.find_first_of(u'\0'));
-        std::cout << "Got a message from client: ";
-        //std::u<< content << std::endl;
-        /* Test code */
+        // TODO: Store the transcript in database.
 
-        // TODO: Send message to all other users.
+        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+        response_header->type = (uint8_t)Packet::PacketType::ChatMessageResponse;
+
+        auto* const response_data = (Packet::ChatMessageResponse*)(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        const std::u16string& nickname = client_it->second.nickname;
+        memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
+        *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
+
+        response_data->timestamp = static_cast<uint32_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+            ).count()
+        );
+
+        // TODO: Come up with a way to avoid copying content.
+        const std::u16string_view content{(const char16_t*)request_data->content};
+        memcpy(response_data->content, request_data->content, content.length() * sizeof(char16_t));
+        *((char16_t*)response_data->content + content.length()) = u'\0';
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
+        for (const auto& [client, _] : *LoginMap::Get())
+        {
+            if (client == m_Client)
+                continue;
+            client->Send(m_ResBuffer, response_len);
+        }
+
         return true;
     }
 }
