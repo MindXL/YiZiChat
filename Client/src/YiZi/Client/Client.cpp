@@ -73,8 +73,6 @@ BOOL CClientApp::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
-    YiZi::Client::CSocket::Get()->Initialize();
-    // Socket will be closed in Main().
     Main();
 
     // 删除上面创建的 shell 管理器。

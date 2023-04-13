@@ -35,8 +35,12 @@ END_MESSAGE_MAP()
 void CLoginDlg::OnBnClickedOk()
 {
     // TODO: 在此添加控件通知处理程序代码
+    YiZi::Client::CSocket::Get()->Initialize();
     if (!HandleLoginRequest() || !HandleLoginResponse())
+    {
+        YiZi::Client::CSocket::Get()->Close();
         return;
+    }
 
     CDialogEx::OnOK();
 }
@@ -72,8 +76,8 @@ bool CLoginDlg::HandleLoginRequest()
              password.GetString(), password.GetLength());
     request_data->password[password.GetLength()] = '\0';
 
-    auto* const socket = YiZi::Client::CSocket::Get();
-    if (!socket->Connect(_T("127.0.0.1"), 5000) || !socket->Send(reqBuffer, request_len))
+    if (auto* const socket = YiZi::Client::CSocket::Get();
+        !socket->Connect(_T("127.0.0.1"), 5000) || !socket->Send(reqBuffer, request_len))
     {
         AfxMessageBox(_T("连接服务器失败。请检查网络。"));
         return false;
