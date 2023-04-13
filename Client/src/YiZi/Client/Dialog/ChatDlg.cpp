@@ -2,15 +2,12 @@
 //
 
 #include "pch.h"
-#include "../../Client.h"
+#include <YiZi/Client/Client.h>
 #include "afxdialogex.h"
 #include "ChatDlg.h"
 
-#include "../Dialog/UserInfoDlg.h"
-#include "../Dialog/AboutDlg.h"
-
-#include "../Core/Buffer.h"
-#include "../Core/User.h"
+#include <YiZi/Client/Dialog/UserInfoDlg.h>
+#include <YiZi/Client/Dialog/AboutDlg.h>
 
 // CChatDlg 对话框
 

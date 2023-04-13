@@ -1,12 +1,11 @@
-ï»¿//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ ç”Ÿæˆçš„åŒ…å«æ–‡ä»¶ã€‚
-// ä¾› Client.rc ä½¿ç”¨
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼ş¡£
+// ¹© Client.rc Ê¹ÓÃ
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
 #define IDD_ABOUT_DIALOG                100
 #define IDS_ABOUTBOX                    101
-#define IDD_CLIENT_DIALOG               102
 #define IDP_SOCKETS_INIT_FAILED         103
 #define IDR_MAINFRAME                   128
 #define IDD_LOGIN_DIALOG                129

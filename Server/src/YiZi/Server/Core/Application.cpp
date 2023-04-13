@@ -2,7 +2,6 @@
 
 #include <thread>
 #include <iostream>
-#include <memory>
 
 #include "ConnectionHandler.h"
 #include "SSocket.h"

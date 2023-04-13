@@ -5,9 +5,8 @@
 #include "framework.h"
 #include "Client.h"
 
-#include "src/Dialog/LoginDlg.h"
-#include "src/Dialog/ChatDlg.h"
-#include "src/Dialog/ClientDlg.h"
+#include <YiZi/Client/Dialog/LoginDlg.h>
+#include <YiZi/Client/Dialog/ChatDlg.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

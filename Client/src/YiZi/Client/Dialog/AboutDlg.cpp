@@ -2,7 +2,7 @@
 //
 
 #include "pch.h"
-#include "../../Client.h"
+#include <YiZi/Client/Client.h>
 #include "afxdialogex.h"
 #include "AboutDlg.h"
 

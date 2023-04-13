@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Application.h"
+#include <YiZi/Server/Core/Application.h>
 
 int main()
 {

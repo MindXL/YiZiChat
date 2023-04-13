@@ -2,11 +2,9 @@
 //
 
 #include "pch.h"
-#include "../../Client.h"
+#include <YiZi/Client/Client.h>
 #include "afxdialogex.h"
 #include "UserInfoDlg.h"
-
-#include "../../src/Core/User.h"
 
 // CUserInfoDlg 对话框
 

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "../utils/ClientInfo.h"
+#include <YiZi/Server/Utils/ClientInfo.h>
 
 namespace YiZi::Server
 {

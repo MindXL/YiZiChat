@@ -1,9 +1,8 @@
 #pragma once
 
 #include <string>
-#include <memory>
 
-#include "../src/SSocket.h"
+#include <YiZi/Server/Core/SSocket.h>
 
 namespace YiZi::Server
 {
