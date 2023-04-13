@@ -17,15 +17,18 @@ namespace YiZi::Server
     private:
         explicit ConnectionHandler(SAcceptSocket* client);
 
-        void Run() const;
-        [[nodiscard]] bool Dispatch() const;
+        void Run();
+        [[nodiscard]] bool Dispatch();
 
-        [[nodiscard]] bool HandleLoginRequest() const;
+        [[nodiscard]] bool HandleLoginRequest();
         [[nodiscard]] bool HandleLogoutRequest() const;
         [[nodiscard]] bool HandleChatMessageRequest() const;
 
+        [[nodiscard]] bool ValidateUserLogin();
+
     private:
         SAcceptSocket* const m_Client;
+        uint32_t m_UserId;
         uint8_t* const m_ReqBuffer;
         uint8_t* const m_ResBuffer;
 

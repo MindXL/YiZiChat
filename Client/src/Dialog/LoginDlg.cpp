@@ -99,14 +99,36 @@ bool CLoginDlg::HandleLoginResponse()
     }
 
     const auto* const response_data = reinterpret_cast<YiZi::Packet::LoginResponse*>(resBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
-    if (!(bool)response_data->isValid)
+    if (!static_cast<bool>(response_data->isValid))
     {
-        AfxMessageBox(_T("账号或密码错误。请重试。"));
-        return false;
-    }
-    if (response_data->id == 0)
-    {
-        AfxMessageBox(_T("服务器错误。请重试。"));
+        switch (static_cast<YiZi::Packet::LoginFailReason>(response_data->reason))
+        {
+        case YiZi::Packet::LoginFailReason::UserNotExist:
+            {
+                AfxMessageBox(_T("账号不存在。\n请检查手机号，或联系管理员以注册。"));
+                break;
+            }
+        case YiZi::Packet::LoginFailReason::UserPasswordIncorrect:
+            {
+                AfxMessageBox(_T("密码错误。请检查密码。"));
+                break;
+            }
+        case YiZi::Packet::LoginFailReason::UserAlreadyLoggedIn:
+            {
+                AfxMessageBox(_T("该用户已登录。"));
+                break;
+            }
+#ifdef YZ_DEBUG
+        default:
+            {
+                // Wrong type was passed in response since all cases of "YiZi::Packet::LoginFailReason" are handled above.
+                // There is something wrong in server-end code.
+                __debugbreak();
+            }
+#endif
+        }
+        m_csPassword.Empty();
+        UpdateData(false);
         return false;
     }
 

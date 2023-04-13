@@ -2,12 +2,11 @@
 
 #include <unordered_map>
 
-#include "SSocket.h"
 #include "../utils/ClientInfo.h"
 
 namespace YiZi::Server
 {
-    class LoginMap final : public std::unordered_map<SAcceptSocket*, ClientInfo>
+    class LoginMap final : public std::unordered_map<uint32_t, ClientInfo>
     {
     public:
         static LoginMap* Get() { return s_LoginMap; }

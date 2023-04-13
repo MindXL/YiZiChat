@@ -28,9 +28,17 @@ namespace YiZi::Packet
 
     static constexpr int LOGIN_REQUEST_LENGTH = sizeof(LoginRequest);
 
+    enum class LoginFailReason : uint8_t
+    {
+        UserNotExist,
+        UserPasswordIncorrect,
+        UserAlreadyLoggedIn
+    };
+
     struct LoginResponse
     {
         uint8_t isValid; // Whether the user exists in database;
+        uint8_t reason; // Only makes sense if "isValid == false".
 
         uint32_t id;
         uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];

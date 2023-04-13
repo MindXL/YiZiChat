@@ -13,7 +13,7 @@ namespace YiZi::Server
         std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
 
     ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
-        : m_Client{client}, m_ReqBuffer{BufferManager::Get()->Fetch().first}, m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
+        : m_Client{client}, m_UserId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first}, m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
 
     ConnectionHandler::~ConnectionHandler()
     {
@@ -22,7 +22,7 @@ namespace YiZi::Server
         delete m_Client;
     }
 
-    void ConnectionHandler::Run() const
+    void ConnectionHandler::Run()
     {
         while (true)
         {
@@ -35,7 +35,7 @@ namespace YiZi::Server
         }
     }
 
-    bool ConnectionHandler::Dispatch() const
+    bool ConnectionHandler::Dispatch()
     {
         switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(m_ReqBuffer);
             Packet::PacketType{request_header->type})
@@ -47,56 +47,15 @@ namespace YiZi::Server
         }
     }
 
-    bool ConnectionHandler::HandleLoginRequest() const
+    bool ConnectionHandler::HandleLoginRequest()
     {
-        const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
-        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
-        std::string_view password{(const char*)request_data->password, Database::User::ItemLength::PASSWORD_MAX_LENGTH};
-        password.remove_suffix(password.size() - password.find_first_of('\0'));
-
-        auto* const db = MySQLConnector::Get()->GetSchema();
-        mysqlx::Table tUser = db->getTable(Database::User::name);
-        mysqlx::RowResult result = tUser.select(
-                                            Database::User::Item::id,
-                                            Database::User::Item::nickname,
-                                            s_DatabaseUserJoinTimeExpr,
-                                            Database::User::Item::is_admin
-                                        )
-                                        .where("phone=:phone AND password=:password")
-                                        .bind("phone", phone.data()).bind("password", password.data())
-                                        .execute();
+        const bool isValid = ValidateUserLogin();
 
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
         response_header->type = (uint8_t)Packet::PacketType::LoginResponse;
 
         auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
-
-        const bool isValid = result.count() == 1;
         response_data->isValid = static_cast<uint8_t>(isValid);
-        if (isValid)
-        {
-            mysqlx::Row row = result.fetchOne();
-            response_data->id = row[0].get<decltype(response_data->id)>();
-
-            const std::u16string_view nickname((const char16_t*)row[1].getRawBytes().first, row[1].getRawBytes().second / sizeof(char16_t));
-            memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
-            *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
-
-            response_data->join_time = row[2].get<decltype(response_data->join_time)>();
-
-            const bool is_admin = row[3].get<bool>();
-            response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
-
-            LoginMap::Get()->emplace(m_Client,
-                                     ClientInfo
-                                     {
-                                         .id = response_data->id,
-                                         .phone = std::string{phone},
-                                         .nickname = std::u16string{nickname},
-                                         .join_time = response_data->join_time,
-                                         .is_admin = is_admin
-                                     });
-        }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::LOGIN_RESPONSE_LENGTH;
         if (const bool success = m_Client->Send(m_ResBuffer, response_len);
@@ -107,14 +66,14 @@ namespace YiZi::Server
 
     bool ConnectionHandler::HandleLogoutRequest() const
     {
-        LoginMap::Get()->erase(m_Client);
+        LoginMap::Get()->erase(m_UserId);
         return false;
     }
 
     bool ConnectionHandler::HandleChatMessageRequest() const
     {
         const auto* const s_LoginMap = LoginMap::Get();
-        const auto client_it = s_LoginMap->find(m_Client);
+        const auto client_it = s_LoginMap->find(m_UserId);
         if (client_it == s_LoginMap->cend())
             return false;
 
@@ -143,13 +102,94 @@ namespace YiZi::Server
         *((char16_t*)response_data->content + content.length()) = u'\0';
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
-        for (const auto& [client, _] : *LoginMap::Get())
+        for (const auto& [userId, userInfo] : *LoginMap::Get())
         {
-            if (client == m_Client)
+            if (userId == m_UserId)
                 continue;
-            client->Send(m_ResBuffer, response_len);
+            userInfo.client->Send(m_ResBuffer, response_len);
         }
 
+        return true;
+    }
+
+    bool ConnectionHandler::ValidateUserLogin()
+    {
+        const auto* const request_data = reinterpret_cast<Packet::LoginRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+        const std::string_view password{(const char*)request_data->password};
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+        mysqlx::RowResult result = tUser.select(
+                                            Database::User::Item::id,
+                                            Database::User::Item::password,
+                                            Database::User::Item::nickname,
+                                            s_DatabaseUserJoinTimeExpr,
+                                            Database::User::Item::is_admin
+                                        )
+                                        .where("phone=:phone")
+                                        .bind("phone", phone.data())
+                                        .execute();
+#ifdef YZ_DEBUG
+        if (result.count() != 1)
+        {
+            // This means "There are multiple users who have the same phone number in database".
+            // If this is triggered, then there is something wrong in sql statements.
+            // This if-statement won't exist in release configuration.
+            __asm("int3");
+        }
+#endif
+
+        auto* const response_data = reinterpret_cast<Packet::LoginResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        if (result.count() == 0)
+        {
+            // User doesn't exist in database.
+            response_data->reason = static_cast<decltype(response_data->reason)>(Packet::LoginFailReason::UserNotExist);
+            return false;
+        }
+
+        const auto& row = result.fetchOne();
+        if (password != row[1].get<std::string>())
+        {
+            // Password in request is incorrect.
+            response_data->reason = static_cast<decltype(response_data->reason)>(Packet::LoginFailReason::UserPasswordIncorrect);
+            return false;
+        }
+
+        const auto& loginMap = LoginMap::Get();
+        m_UserId = row[0].get<decltype(m_UserId)>();
+        if (loginMap->find(m_UserId) != loginMap->cend())
+        {
+            // User has already logged in.
+            response_data->reason = static_cast<decltype(response_data->reason)>(Packet::LoginFailReason::UserAlreadyLoggedIn);
+            return false;
+        }
+
+        /* From now on, user's login is finally valid. */
+
+        response_data->id = m_UserId;
+
+        const std::u16string_view nickname((const char16_t*)row[2].getRawBytes().first,
+                                           row[2].getRawBytes().second / sizeof(char16_t));
+        memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
+        *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
+
+        response_data->join_time = row[3].get<decltype(response_data->join_time)>();
+
+        const bool is_admin = row[4].get<bool>();
+        response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
+
+        loginMap->emplace(m_UserId,
+                          ClientInfo
+                          {
+                              .id = response_data->id,
+                              .phone = std::string{phone},
+                              .nickname = std::u16string{nickname},
+                              .join_time = response_data->join_time,
+                              .is_admin = is_admin,
+                              .client = m_Client
+                          });
         return true;
     }
 }
