@@ -1,11 +1,9 @@
 # Visual Studio
 .vs/
-*.sln
-*.vcxproj
-*.vcxproj.*
+*.vcxproj.user
+*.vcxproj.filters
 
 # build
-/dist
 **/x64/
 **/bin
 **/obj
