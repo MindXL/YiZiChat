@@ -74,8 +74,8 @@ BOOL CClientApp::InitInstance()
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
     YiZi::Client::CSocket::Get()->Initialize();
+    // Socket will be closed in Main().
     Main();
-    YiZi::Client::CSocket::Get()->Close();
 
     // 删除上面创建的 shell 管理器。
     if (pShellManager != nullptr)
@@ -97,29 +97,36 @@ void CClientApp::Main()
     CDialogEx* dlg = nullptr;
     INT_PTR nResponse = 0;
 
-    dlg = new CLoginDlg();
-    //m_pMainWnd = dlg;
-    nResponse = dlg->DoModal();
-    if (nResponse == IDCANCEL)
-        return;
-    if (nResponse == -1)
+    // Only break to close socket.
+    while (true)
     {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-    }
-    delete dlg;
+        dlg = new CLoginDlg();
+        //m_pMainWnd = dlg;
+        nResponse = dlg->DoModal();
+        delete dlg;
+        if (nResponse == IDCANCEL)
+            return;
+        if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+        {
+            TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+            TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+            return;
+        }
 
-    dlg = new CChatDlg{};
-    //m_pMainWnd = dlg;
-    nResponse = dlg->DoModal();
-    if (nResponse == IDCANCEL)
-        return;
-    if (nResponse == -1)
-    {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+        dlg = new CChatDlg{};
+        //m_pMainWnd = dlg;
+        nResponse = dlg->DoModal();
+        delete dlg;
+        if (nResponse == IDCANCEL)
+            break;
+        if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+        {
+            TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+            TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+            break;
+        }
+        if (nResponse != YiZi::Client::DialogBoxCommandID::CID_LOGOUT)
+            break;
     }
-    delete dlg;
-
     YiZi::Client::CSocket::Get()->Close();
 }

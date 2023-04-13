@@ -11,7 +11,6 @@ class CChatDlg final : public CDialogEx
 
 public:
     explicit CChatDlg(CWnd* pParent = nullptr); // 标准构造函数
-    ~CChatDlg() override;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -38,6 +37,7 @@ private:
     afx_msg void OnAbout();
     afx_msg void OnLogout();
     afx_msg LRESULT OnRecvData(WPARAM wParam, LPARAM lParam);
+    BOOL DestroyWindow() override;
 
 private:
     static constexpr int s_iChatRequestBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_REQUEST_LENGTH;

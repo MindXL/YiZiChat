@@ -18,12 +18,6 @@ CChatDlg::CChatDlg(CWnd* pParent /*=nullptr*/)
       , m_csTranscript(_T(""))
       , m_csMessage(_T("")) {}
 
-CChatDlg::~CChatDlg()
-{
-    delete m_pChatRequestBuffer;
-    delete m_pChatResponseBuffer;
-}
-
 void CChatDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
@@ -98,8 +92,11 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
     const auto* const response_header = (YiZi::Packet::PacketHeader*)m_pChatResponseBuffer;
     while (true)
     {
-        if (socket.Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen) == -1)
-            break;
+        const int length = socket.Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
+        if (length == SOCKET_ERROR)
+            return;
+        if (length == 0)
+            return;
 
         if (response_header->type != (uint8_t)YiZi::Packet::PacketType::ChatMessageResponse)
         {
@@ -160,10 +157,23 @@ void CChatDlg::OnLogout()
     HandleLogoutRequest();
 
     YiZi::Client::User::Delete();
+
+    EndDialog(YiZi::Client::DialogBoxCommandID::CID_LOGOUT);
 }
 
 LRESULT CChatDlg::OnRecvData(WPARAM wParam, LPARAM lParam)
 {
     HandleChatMessageResponse();
     return 0;
+}
+
+// Will be called after EndDialog() ends.
+BOOL CChatDlg::DestroyWindow()
+{
+    if (m_tListenChatMessageThread.joinable())
+        m_tListenChatMessageThread.join();
+    delete m_pChatRequestBuffer;
+    delete m_pChatResponseBuffer;
+
+    return CDialogEx::DestroyWindow();
 }

@@ -13,5 +13,6 @@
 #include <YiZi/Client/Core/InputControl.h>
 #include <YiZi/Client/Core/CSocket.h>
 #include <YiZi/Client/Core/User.h>
+#include <YiZi/Client/Core/DialogBoxCommandID.h>
 
 #endif //PCH_H
