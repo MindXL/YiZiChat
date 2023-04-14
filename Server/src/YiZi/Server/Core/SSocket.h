@@ -18,7 +18,7 @@ namespace YiZi::Server
         bool Listen(ip_t ip, port_t port) override;
         bool Accept() override;
 
-        bool Send(const void* buffer, packet_length_t byteCount) override;
+        int Send(const void* buffer, packet_length_t byteCount) override;
         packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
 
         static Socket* Get() { return s_SListenSocket; }
@@ -45,7 +45,7 @@ namespace YiZi::Server
         bool Listen(ip_t ip, port_t port) override;
         bool Accept() override;
 
-        bool Send(const void* buffer, packet_length_t byteCount) override;
+        int Send(const void* buffer, packet_length_t byteCount) override;
         packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
 
     private:

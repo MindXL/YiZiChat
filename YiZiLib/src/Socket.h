@@ -14,7 +14,7 @@ namespace YiZi
         virtual bool Listen(ip_t ip, port_t port) = 0;
         virtual bool Accept() = 0;
 
-        virtual bool Send(const void* buffer, packet_length_t byteCount) = 0;
+        virtual int Send(const void* buffer, packet_length_t byteCount) = 0;
         virtual packet_length_t Receive(void* buffer, packet_length_t byteCount) = 0;
 
         ip_t GetIP() const { return m_IP; }

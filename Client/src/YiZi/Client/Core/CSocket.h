@@ -14,8 +14,8 @@ namespace YiZi::Client
         bool Connect(ip_t ip, port_t port) override;
         bool Listen(ip_t ip, port_t port) override { throw std::logic_error{"Listen() is not supported in Client-End Socket"}; }
         bool Accept() override { throw std::logic_error{"Accept() is not supported in Client-End Socket"}; }
-
-        bool Send(const void* buffer, const packet_length_t byteCount) override { return m_Socket.Send(buffer, byteCount); }
+        
+        int Send(const void* buffer, const packet_length_t byteCount) override { return m_Socket.Send(buffer, byteCount); }
         packet_length_t Receive(void* buffer, const packet_length_t byteCount) override { return m_Socket.Receive(buffer, byteCount); }
 
         static Socket* Get() { return s_CSocket; }

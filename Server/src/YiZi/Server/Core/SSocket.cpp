@@ -1,6 +1,7 @@
 #include "SSocket.h"
 
 #include <stdexcept>
+#include <limits>
 
 namespace YiZi::Server
 {
@@ -42,7 +43,7 @@ namespace YiZi::Server
         throw std::logic_error{"Accept() is not supported in Server-End Socket (SListenSocket)."};
     }
 
-    bool SListenSocket::Send(const void* const buffer, packet_length_t byteCount)
+    int SListenSocket::Send(const void* const buffer, packet_length_t byteCount)
     {
         throw std::logic_error{"Send() is not supported in Server-End Socket (SListenSocket)."};
     }
@@ -84,9 +85,17 @@ namespace YiZi::Server
         return true;
     }
 
-    bool SAcceptSocket::Send(const void* const buffer, const packet_length_t byteCount)
+    int SAcceptSocket::Send(const void* const buffer, const packet_length_t byteCount)
     {
-        return send(m_Socket, buffer, byteCount, 0) != -1;
+#ifdef YZ_DEBUG
+        // This means somewhere in code sent a packet longer than 2147483647.
+        if (const auto count = send(m_Socket, buffer, byteCount, 0);
+            count > static_cast<decltype(count)>(std::numeric_limits<int>::max()))
+            __asm("int3");
+        return -1;
+#else
+        return static_cast<int>(send(m_Socket, buffer, byteCount, 0));
+#endif
     }
 
     packet_length_t SAcceptSocket::Receive(void* const buffer, const packet_length_t byteCount)
