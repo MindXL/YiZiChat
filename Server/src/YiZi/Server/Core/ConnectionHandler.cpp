@@ -81,9 +81,10 @@ namespace YiZi::Server
         const auto* const request_data = (Packet::ChatMessageRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
 
         const uint32_t& uid = request_data->id;
-        const int64_t& timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
+        const uint64_t timestamp = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+            ).count());
         const std::u16string content{(const char16_t*)request_data->content}; // mysqlx can't handle string_view like.
 
         std::thread tSend{

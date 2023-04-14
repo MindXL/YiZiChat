@@ -71,7 +71,7 @@ void CChatDlg::HandleChatMessageResponse()
     const auto* const response_data = (YiZi::Packet::ChatMessageResponse*)(m_pChatResponseBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
 
     WriteTranscript((const wchar_t*)response_data->content,
-                    CTime{response_data->timestamp / 1000},
+                    CTime{static_cast<__time64_t>(response_data->timestamp / 1000)},
                     (const wchar_t*)response_data->nickname);
     UpdateData(false);
 }
