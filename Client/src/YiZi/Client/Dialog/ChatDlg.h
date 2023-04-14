@@ -31,6 +31,9 @@ private:
 
     static void ListenChatMessage(HWND hWnd);
 
+    void WriteTranscript(const CString& message);
+    void WriteTranscript(const CString& message,const CTime& time,const CString& nickname);
+
     afx_msg void OnBnClickedButtonSend();
     afx_msg void OnBnClickedButtonEmptyTranscript();
     afx_msg void OnUserInfo();
@@ -50,4 +53,7 @@ private:
 
     CString m_csTranscript;
     CString m_csMessage;
+
+    std::mutex m_mCSTranscript;
+    const CString& m_csLocalUserNickname;
 };

@@ -90,11 +90,9 @@ namespace YiZi::Server
         memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
         *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
 
-        response_data->timestamp = static_cast<uint32_t>(
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-            ).count()
-        );
+        response_data->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
 
         // TODO: Come up with a way to avoid copying content.
         const std::u16string_view content{(const char16_t*)request_data->content};

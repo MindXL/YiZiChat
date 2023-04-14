@@ -62,7 +62,7 @@ namespace YiZi::Packet
     struct ChatMessageResponse
     {
         uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];
-        uint32_t timestamp;
+        int64_t timestamp; // milliseconds
         uint8_t content[(Database::Transcript::ItemLength::CONTENT_MAX_LENGTH + 1) * sizeof(char16_t)];
     };
 

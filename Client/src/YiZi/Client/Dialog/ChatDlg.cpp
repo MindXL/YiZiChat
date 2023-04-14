@@ -16,7 +16,8 @@ IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
 CChatDlg::CChatDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_CHAT_DIALOG, pParent)
       , m_csTranscript(_T(""))
-      , m_csMessage(_T("")) {}
+      , m_csMessage(_T(""))
+      , m_csLocalUserNickname{YiZi::Client::User::Get()->GetNickname()} {}
 
 void CChatDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -67,9 +68,9 @@ void CChatDlg::HandleChatMessageResponse()
 {
     const auto* const response_data = (YiZi::Packet::ChatMessageResponse*)(m_pChatResponseBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
 
-    // TODO: Improve output.
-    m_csTranscript.Append((const wchar_t*)response_data->content);
-    m_csTranscript.Append(_T("\r\n"));
+    WriteTranscript((const wchar_t*)response_data->content,
+                    CTime{response_data->timestamp / 1000},
+                    (const wchar_t*)response_data->nickname);
     UpdateData(false);
 }
 
@@ -109,6 +110,18 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
     }
 }
 
+void CChatDlg::WriteTranscript(const CString& message)
+{
+    WriteTranscript(message, CTime::GetCurrentTime(), m_csLocalUserNickname);
+}
+
+void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const CString& nickname)
+{
+    std::lock_guard lock{m_mCSTranscript};
+    m_csTranscript.AppendFormat(_T("%s <%s>: %s\r\n"), time.Format(_T("%T")), nickname, message);
+    UpdateData(false);
+}
+
 // CChatDlg 消息处理程序
 
 void CChatDlg::OnBnClickedButtonSend()
@@ -125,14 +138,14 @@ void CChatDlg::OnBnClickedButtonSend()
         return;
     }
 
-    m_csTranscript.Append(m_csMessage);
-    m_csTranscript.Append(_T("\r\n"));
+    WriteTranscript(m_csMessage);
     m_csMessage.Empty();
     UpdateData(false);
 }
 
 void CChatDlg::OnBnClickedButtonEmptyTranscript()
 {
+    std::lock_guard lock{m_mCSTranscript};
     m_csTranscript.Empty();
     UpdateData(false);
 }
