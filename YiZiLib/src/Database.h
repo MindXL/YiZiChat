@@ -32,6 +32,7 @@ namespace YiZi::Database
         }
     }
 
+    /*
     namespace Channel
     {
         NAME name = "Channel";
@@ -52,6 +53,7 @@ namespace YiZi::Database
             LEN DESCRIPTION_MAX_LENGTH = 500;
         }
     }
+    */
 
     namespace Transcript
     {
@@ -59,7 +61,7 @@ namespace YiZi::Database
 
         namespace Item
         {
-            NAME cid = "cid";
+            //NAME cid = "cid";
             NAME uid = "uid";
             NAME time = "time";
             NAME content = "content";
@@ -72,6 +74,7 @@ namespace YiZi::Database
         }
     }
 
+    /*
     namespace Mute
     {
         NAME name = "Mute";
@@ -90,6 +93,7 @@ namespace YiZi::Database
 
         namespace Item = Mute::Item;
     }
+    */
 }
 #undef LEN
 #undef NAME
