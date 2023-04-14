@@ -27,7 +27,7 @@ CREATE TABLE `Channel` (
 CREATE TABLE `Transcript` (
     -- `cid` INT NOT NULL,
     `uid` INT NOT NULL,
-    `time` TIMESTAMP NOT NULL,
+    `time` BIGINT UNSIGNED NOT NULL,
     `content` VARCHAR(500) NOT NULL,
     -- FOREIGN KEY(`cid`) REFERENCES `Channel`(`id`),
     FOREIGN KEY(`uid`) REFERENCES `User`(`id`)

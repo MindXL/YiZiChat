@@ -54,6 +54,8 @@ bool CChatDlg::HandleChatMessageRequest() const
 {
     auto* const request_data = (YiZi::Packet::ChatMessageRequest*)(m_pChatRequestBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
 
+    request_data->id = YiZi::Client::User::Get()->GetId();
+
     const int message_len = m_csMessage.GetLength();
     memcpy_s(request_data->content, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH,
              m_csMessage.GetString(), message_len * sizeof(wchar_t));

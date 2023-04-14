@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <string_view>
+#include <thread>
 
 #include "BufferManager.h"
 #include "MySQLConnector.h"
@@ -79,34 +80,51 @@ namespace YiZi::Server
 
         const auto* const request_data = (Packet::ChatMessageRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
 
-        // TODO: Store the transcript in database.
-
-        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
-        response_header->type = (uint8_t)Packet::PacketType::ChatMessageResponse;
-
-        auto* const response_data = (Packet::ChatMessageResponse*)(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
-
-        const std::u16string& nickname = client_it->second.nickname;
-        memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
-        *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
-
-        response_data->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+        const uint32_t& uid = request_data->id;
+        const int64_t& timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count();
+        const std::u16string content{(const char16_t*)request_data->content}; // mysqlx can't handle string_view like.
 
-        // TODO: Come up with a way to avoid copying content.
-        const std::u16string_view content{(const char16_t*)request_data->content};
-        memcpy(response_data->content, request_data->content, content.length() * sizeof(char16_t));
-        *((char16_t*)response_data->content + content.length()) = u'\0';
+        std::thread tSend{
+            [&]
+            {
+                auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+                response_header->type = (uint8_t)Packet::PacketType::ChatMessageResponse;
 
-        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
-        for (const auto& [userId, userInfo] : *LoginMap::Get())
-        {
-            if (userId == m_UserId)
-                continue;
-            userInfo.client->Send(m_ResBuffer, response_len);
-        }
+                auto* const response_data = (Packet::ChatMessageResponse*)(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
 
+                const std::u16string& nickname = client_it->second.nickname;
+                memcpy(response_data->nickname, nickname.data(), nickname.length() * sizeof(char16_t));
+                *((char16_t*)response_data->nickname + nickname.length()) = u'\0';
+
+                response_data->timestamp = timestamp;
+
+                // TODO: Come up with a way to avoid copying content.
+                memcpy(response_data->content, request_data->content, content.length() * sizeof(char16_t));
+                *((char16_t*)response_data->content + content.length()) = u'\0';
+
+                constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
+                for (const auto& [userId, userInfo] : *LoginMap::Get())
+                {
+                    if (userId == m_UserId)
+                        continue;
+                    userInfo.client->Send(m_ResBuffer, response_len);
+                }
+            }
+        };
+        tSend.detach();
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tTranscript = db->getTable(Database::Transcript::name);
+        tTranscript.insert(
+            Database::Transcript::Item::uid,
+            Database::Transcript::Item::time,
+            Database::Transcript::Item::content
+        ).values(uid, timestamp, content).execute();
+
+        if (tSend.joinable())
+            tSend.join();
         return true;
     }
 

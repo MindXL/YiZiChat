@@ -54,6 +54,7 @@ namespace YiZi::Packet
 
     struct ChatMessageRequest
     {
+        uint32_t id;
         uint8_t content[(Database::Transcript::ItemLength::CONTENT_MAX_LENGTH + 1) * sizeof(char16_t)];
     };
 
