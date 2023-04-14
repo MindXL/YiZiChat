@@ -7,11 +7,11 @@ COLLATE=ucs2_general_ci;
 USE `YiZiChat`;
 
 CREATE TABLE `User` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     `phone` CHAR(11) NOT NULL UNIQUE,
     `password` VARCHAR(20) NOT NULL CHECK(char_length(`password`) >= 8),
     `nickname` VARCHAR(20) UNIQUE NOT NULL CHECK(length(`nickname`) >= 2),
-    `join_time` TIMESTAMP NOT NULL,
+    `join_time` BIGINT UNSIGNED NOT NULL,
     `is_admin` TINYINT NOT NULL DEFAULT 0 CHECK(`is_admin` IN (0, 1))
 ) AUTO_INCREMENT=1;
 
@@ -26,7 +26,7 @@ CREATE TABLE `Channel` (
 
 CREATE TABLE `Transcript` (
     -- `cid` INT NOT NULL,
-    `uid` INT NOT NULL,
+    `uid` INT UNSIGNED NOT NULL,
     `time` BIGINT UNSIGNED NOT NULL,
     `content` VARCHAR(500) NOT NULL,
     -- FOREIGN KEY(`cid`) REFERENCES `Channel`(`id`),
@@ -53,10 +53,10 @@ CREATE TABLE `Ban` (
 
 -- unix_timestamp(now())
 INSERT INTO `User`(`phone`,`password`,`nickname`,`join_time`,`is_admin`) VALUES
-('13312345678','123456789','Mind',now(),1),
-('14412345678','123456789','user144',now(),0),
-('15598765432','987654321','user155',now(),0),
-('16648918761','1q2w3e4r5t_-','一二三四',now(),1);
+('13312345678','123456789','Mind',unix_timestamp(now()) * 1000,1),
+('14412345678','123456789','user144',unix_timestamp(now()) * 1000,0),
+('15598765432','987654321','user155',unix_timestamp(now()) * 1000,0),
+('16648918761','1q2w3e4r5t_-','一二三四',unix_timestamp(now()) * 1000,1);
 
 /*
 INSERT INTO `Channel`(`name`,`join_time`,`description`) VALUES

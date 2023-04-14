@@ -10,9 +10,6 @@
 
 namespace YiZi::Server
 {
-    const std::string ConnectionHandler::s_DatabaseUserJoinTimeExpr = std::move(
-        std::string{"unix_timestamp("}.append(Database::User::Item::join_time).append(")"));
-
     ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
         : m_Client{client}, m_UserId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first}, m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
 
@@ -141,7 +138,7 @@ namespace YiZi::Server
                                             Database::User::Item::id,
                                             Database::User::Item::password,
                                             Database::User::Item::nickname,
-                                            s_DatabaseUserJoinTimeExpr,
+                                            Database::User::Item::join_time,
                                             Database::User::Item::is_admin
                                         )
                                         .where("phone=:phone")

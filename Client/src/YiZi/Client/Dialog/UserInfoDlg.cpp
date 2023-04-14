@@ -44,7 +44,7 @@ BOOL CUserInfoDlg::OnInitDialog()
     m_csPhone = YiZi::Client::User::Get()->GetPhone();
     m_cePassword.SetWindowTextW(s_csPasswordPlaceholder);
     m_ceNickname.SetWindowTextW(user->GetNickname());
-    m_csJoinTime = CTime{YiZi::Client::User::Get()->GetJoinTime()}.Format(_T("%F %T"));
+    m_csJoinTime = CTime{static_cast<__time64_t>(YiZi::Client::User::Get()->GetJoinTime() / 1000)}.Format(_T("%F %T"));
     UpdateData(false);
 
     return TRUE; // return TRUE unless you set the focus to a control

@@ -42,7 +42,7 @@ namespace YiZi::Packet
 
         uint32_t id;
         uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];
-        uint32_t join_time;
+        uint64_t join_time;
         uint8_t isAdmin;
     };
 

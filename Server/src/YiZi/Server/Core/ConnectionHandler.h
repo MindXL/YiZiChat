@@ -31,7 +31,5 @@ namespace YiZi::Server
         uint32_t m_UserId;
         uint8_t* const m_ReqBuffer;
         uint8_t* const m_ResBuffer;
-
-        static const std::string s_DatabaseUserJoinTimeExpr; // Used in HandleLoginRequest()
     };
 }
