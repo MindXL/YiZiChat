@@ -6,7 +6,7 @@
 namespace YiZi::Server
 {
     // Server-End YiZi::Socket implementation (Used to listen).
-    class SListenSocket final : Socket
+    class SListenSocket final : public Socket
     {
     public:
         ~SListenSocket() override = default;
@@ -33,7 +33,7 @@ namespace YiZi::Server
     };
 
     // Server-End YiZi::Socket implementation (Used to accept).
-    class SAcceptSocket final : Socket
+    class SAcceptSocket final : public Socket
     {
     public:
         ~SAcceptSocket() override = default;

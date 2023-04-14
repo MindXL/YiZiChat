@@ -3,7 +3,7 @@
 namespace YiZi::Client
 {
     // Client-End YiZi::Socket implementation.
-    class CSocket final : Socket
+    class CSocket final : public Socket
     {
     public:
         ~CSocket() override = default;
@@ -14,7 +14,7 @@ namespace YiZi::Client
         bool Connect(ip_t ip, port_t port) override;
         bool Listen(ip_t ip, port_t port) override { throw std::logic_error{"Listen() is not supported in Client-End Socket"}; }
         bool Accept() override { throw std::logic_error{"Accept() is not supported in Client-End Socket"}; }
-        
+
         int Send(const void* buffer, const packet_length_t byteCount) override { return m_Socket.Send(buffer, byteCount); }
         packet_length_t Receive(void* buffer, const packet_length_t byteCount) override { return m_Socket.Receive(buffer, byteCount); }
 
