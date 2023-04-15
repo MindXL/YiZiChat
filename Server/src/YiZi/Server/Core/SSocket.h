@@ -25,7 +25,13 @@ namespace YiZi::Server
 
         [[nodiscard]] bool IsClosed() const override { return s_IsClosed; }
 
-        static Socket* Get() { return s_SListenSocket; }
+        [[nodiscard]] static Socket* Get() { return s_SListenSocket; }
+
+    private:
+        SListenSocket() = default;
+
+        void SetClosed() override { s_IsClosed = true; }
+        void UnsetClosed() override { s_IsClosed = false; }
 
     private:
         sockaddr_in m_ServerAddress{};
@@ -33,12 +39,6 @@ namespace YiZi::Server
         static std::atomic<bool> s_IsClosed;
 
         static Socket* s_SListenSocket;
-
-    private:
-        SListenSocket() = default;
-
-        void SetClosed() override { s_IsClosed = true; }
-        void UnsetClosed() override { s_IsClosed = false; }
     };
 
     // Server-End YiZi::Socket implementation (Used to accept).

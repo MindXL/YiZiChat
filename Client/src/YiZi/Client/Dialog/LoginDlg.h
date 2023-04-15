@@ -24,9 +24,9 @@ protected:
 private:
     bool HandleLoginRequest();
     bool HandleLoginResponse();
+    afx_msg void OnBnClickedOk();
 
+private:
     CString m_csPhone;
     CString m_csPassword;
-
-    afx_msg void OnBnClickedOk();
 };

@@ -23,18 +23,13 @@ namespace YiZi::Server
         return {buffer, buffer + Packet::REQUEST_MAX_LENGTH()};
     }
 
-    void BufferManager::Return(uint8_t* const reqBuffer)
-    {
-        m_SpareBuffers.emplace_back(reqBuffer);
-    }
-
     void BufferManager::Free(const int count)
     {
         for (int _ = 0; _ < count; _++)
         {
-            delete m_SpareBuffers.front();
-
+            const uint8_t* const buffer = m_SpareBuffers.front();
             m_SpareBuffers.pop_front();
+            delete[] buffer;
         }
     }
 }

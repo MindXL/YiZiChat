@@ -14,7 +14,7 @@ namespace YiZi::Client
         [[nodiscard]] uint64_t GetJoinTime() const { return m_JoinTime; }
         [[nodiscard]] bool GetIsAdmin() const { return m_IsAdmin; }
 
-        static bool IsValid() { return s_User != nullptr; }
+        [[nodiscard]] static bool IsValid() { return s_User != nullptr; }
         static User* New(uint32_t id, CStringA phone, CString nickname, uint64_t join_time, bool is_admin);
         [[nodiscard]] static User* Get() { return s_User; }
         static void Delete()

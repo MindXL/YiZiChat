@@ -27,19 +27,19 @@ namespace YiZi::Client
         int Send(const void* buffer, packet_length_t byteCount) override;
         packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
 
-        static Socket* Get() { return s_CSocket; }
+        [[nodiscard]] static Socket* Get() { return s_CSocket; }
 
         [[nodiscard]] bool IsClosed() const override { return s_IsClosed; }
-
-    private:
-        static std::atomic<bool> s_IsClosed;
-
-        static Socket* const s_CSocket;
 
     private:
         CSocket() = default;
 
         void SetClosed() override { s_IsClosed = true; }
         void UnsetClosed() override { s_IsClosed = false; }
+
+    private:
+        static std::atomic<bool> s_IsClosed;
+
+        static Socket* const s_CSocket;
     };
 }

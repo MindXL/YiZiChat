@@ -31,9 +31,9 @@ namespace YiZi
         virtual int Send(const void* buffer, packet_length_t byteCount) = 0;
         virtual packet_length_t Receive(void* buffer, packet_length_t byteCount) = 0;
 
-        ip_t GetIP() const { return m_IP; }
-        port_t GetPort() const { return m_Port; }
-        const socket_t& GetSocket() const { return m_Socket; }
+        [[nodiscard]] ip_t GetIP() const { return m_IP; }
+        [[nodiscard]] port_t GetPort() const { return m_Port; }
+        [[nodiscard]] const socket_t& GetSocket() const { return m_Socket; }
 
         [[nodiscard]] virtual bool IsClosed() const = 0;
 

@@ -6,13 +6,14 @@ namespace YiZi::Client
     {
     public:
         Buffer();
+
         ~Buffer();
 
-        [[nodiscard]] static Buffer* Get();
+        [[nodiscard]] static Buffer* Get() { return s_Buffer; }
 
-        [[nodiscard]] std::pair<uint8_t* const, uint8_t* const> GetBuffer();
-        [[nodiscard]] uint8_t* GetReqBuffer() const;
-        [[nodiscard]] uint8_t* GetResBuffer() const;
+        [[nodiscard]] std::pair<uint8_t* const, uint8_t* const> GetBuffer() { return {m_ReqBuffer, m_ResBuffer}; }
+        [[nodiscard]] uint8_t* GetReqBuffer() const { return m_ReqBuffer; }
+        [[nodiscard]] uint8_t* GetResBuffer() const { return m_ResBuffer; }
 
     private:
         uint8_t* m_ReqBuffer;

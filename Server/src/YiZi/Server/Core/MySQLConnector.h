@@ -15,7 +15,7 @@ namespace YiZi::Server
 
         [[nodiscard]] mysqlx::Schema* GetSchema() const { return m_Schema; }
 
-        static MySQLConnector* Get() { return s_MySQLConnector; }
+        [[nodiscard]] static MySQLConnector* Get() { return s_MySQLConnector; }
 
     private:
         mysqlx::Session* m_Session;

@@ -24,6 +24,7 @@ protected:
 private:
     BOOL OnInitDialog() override;
 
+private:
     CString m_csPhone;
     CEdit m_cePassword;
     CEdit m_ceNickname;
