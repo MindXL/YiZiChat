@@ -14,4 +14,13 @@ namespace YiZi::Client
         s_User = new User{id, std::move(phone), std::move(nickname), join_time, is_admin};
         return s_User;
     }
+
+    void User::Delete()
+    {
+        if (IsValid())
+        {
+            delete s_User;
+            s_User = nullptr;
+        }
+    }
 }
