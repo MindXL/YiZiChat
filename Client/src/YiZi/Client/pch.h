@@ -9,6 +9,7 @@
 #include <regex>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include <YiZi/Client/Core/Buffer.h>
 #include <YiZi/Client/Core/InputControl.h>

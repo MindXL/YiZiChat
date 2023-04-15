@@ -73,7 +73,18 @@ BOOL CClientApp::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
+    auto* const g_Socket = YiZi::Client::CSocket::Get();
+#ifdef YZ_DEBUG
+    // Socket can't be initialized before here.
+    if (!g_Socket->IsClosed())
+        __debugbreak();
+#endif
+    // Socket will be initialized inside Main().
+    // Socket may be initialized or closed multiple times inside Main().
     Main();
+    // Make sure that socket is closed.
+    if (!g_Socket->IsClosed())
+        g_Socket->Close();
 
     // 删除上面创建的 shell 管理器。
     if (pShellManager != nullptr)
@@ -103,12 +114,12 @@ void CClientApp::Main()
         nResponse = dlg->DoModal();
         delete dlg;
         if (nResponse == IDCANCEL)
-            return;
+            break;
         if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
         {
             TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
             TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
-            return;
+            break;
         }
 
         dlg = new CChatDlg{};
@@ -125,6 +136,12 @@ void CClientApp::Main()
         }
         if (nResponse != YiZi::Client::DialogBoxCommandID::CID_LOGOUT)
             break;
+
+        // Make sure that socket is closed.
+        if (auto* const g_Socket = YiZi::Client::CSocket::Get();
+            !g_Socket->IsClosed())
+        {
+            g_Socket->Close();
+        }
     }
-    YiZi::Client::CSocket::Get()->Close();
 }

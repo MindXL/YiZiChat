@@ -89,17 +89,14 @@ void CChatDlg::HandleLogoutRequest()
 
 void CChatDlg::ListenChatMessage(const HWND hWnd)
 {
-    CSocket socket;
-    socket.Attach(YiZi::Client::CSocket::Get()->GetSocket());
+    auto* const socket = new YiZi::Client::CSocket{YiZi::Client::CSocket::Get()};
 
     const auto* const response_header = (YiZi::Packet::PacketHeader*)m_pChatResponseBuffer;
     while (true)
     {
-        const int length = socket.Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
-        if (length == SOCKET_ERROR)
-            return;
-        if (length == 0)
-            return;
+        socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
+        if (socket->IsClosed())
+            break;
 
         if (response_header->type != (uint8_t)YiZi::Packet::PacketType::ChatMessageResponse)
         {
@@ -110,6 +107,8 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
         ::SendMessage(hWnd, WM_RECVDATA, 0, 0);
         std::this_thread::yield();
     }
+
+    delete socket;
 }
 
 void CChatDlg::WriteTranscript(const CString& message)
@@ -169,7 +168,7 @@ void CChatDlg::OnLogout()
 
     //WSACancelBlockingCall();
 
-    HandleLogoutRequest();
+    HandleLogoutRequest(); // Don't call socket to close after this, because sever-end closed the connection.
 
     YiZi::Client::User::Delete();
 
@@ -187,6 +186,12 @@ BOOL CChatDlg::DestroyWindow()
 {
     if (m_tListenChatMessageThread.joinable())
         m_tListenChatMessageThread.join();
+    if (auto* const g_Socket = YiZi::Client::CSocket::Get();
+        !g_Socket->IsClosed())
+    {
+        g_Socket->Close();
+    }
+
     delete m_pChatRequestBuffer;
     delete m_pChatResponseBuffer;
 

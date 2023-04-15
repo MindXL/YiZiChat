@@ -34,11 +34,17 @@ END_MESSAGE_MAP()
 
 void CLoginDlg::OnBnClickedOk()
 {
-    // TODO: 在此添加控件通知处理程序代码
-    YiZi::Client::CSocket::Get()->Initialize();
+    auto* const g_Socket = YiZi::Client::CSocket::Get();
+#ifdef YZ_DEBUG
+    // Socket must be closed before CLoginDlg pops up or before login process starts.
+    if (!g_Socket->IsClosed())
+        __debugbreak();
+#endif
+
+    g_Socket->Initialize();
     if (!HandleLoginRequest() || !HandleLoginResponse())
     {
-        YiZi::Client::CSocket::Get()->Close();
+        g_Socket->Close();
         return;
     }
 
