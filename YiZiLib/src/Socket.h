@@ -10,10 +10,7 @@ namespace YiZi
         Socket() = default;
 #if defined(YZ_CLIENT)
         explicit Socket(const Socket* const other)
-            : m_IP{other->m_IP}, m_Port{other->m_Port}
-        {
-            m_Socket.Attach(other->m_Socket);
-        }
+            : m_IP{other->m_IP}, m_Port{other->m_Port} { }
 #elif defined(YZ_SERVER)
         explicit Socket(const Socket* const other)
             : m_IP{other->m_IP}, m_Port{other->m_Port}, m_Socket{other->m_Socket} {}

@@ -48,6 +48,10 @@ void CLoginDlg::OnBnClickedOk()
         return;
     }
 
+    CString message{ _T("登录成功。\n欢迎你：") };
+    message.Append(YiZi::Client::User::Get()->GetNickname());
+    AfxMessageBox(message);
+
     CDialogEx::OnOK();
 }
 
@@ -145,10 +149,6 @@ bool CLoginDlg::HandleLoginResponse()
                             std::move(CString{(const wchar_t*)response_data->nickname, YiZi::Database::User::ItemLength::NICKNAME_MAX_LENGTH}),
                             response_data->join_time,
                             static_cast<bool>(response_data->isAdmin));
-
-    CString message{_T("登录成功。\n欢迎你：")};
-    message.Append(YiZi::Client::User::Get()->GetNickname());
-    AfxMessageBox(message);
 
     return true;
 }

@@ -6,19 +6,10 @@ namespace YiZi::Client
     class CSocket final : public Socket
     {
     public:
-        explicit CSocket(const Socket* const other)
-            : Socket(other) {}
+        explicit CSocket(const Socket* other);
 
-        void Initialize() override
-        {
-            m_Socket.Create();
-            UnsetClosed();
-        }
-        void Close() override
-        {
-            m_Socket.Close();
-            SetClosed();
-        }
+        void Initialize() override;
+        void Close() override;
 
         bool Connect(ip_t ip, port_t port) override;
         bool Listen(ip_t ip, port_t port) override { throw std::logic_error{"Listen() is not supported in Client-End Socket"}; }
@@ -29,16 +20,18 @@ namespace YiZi::Client
 
         [[nodiscard]] static Socket* Get() { return s_CSocket; }
 
-        [[nodiscard]] bool IsClosed() const override { return s_IsClosed; }
+        [[nodiscard]] bool IsClosed() const override { return s_IsClosed && s_ThreadClosed; }
 
     private:
         CSocket() = default;
 
-        void SetClosed() override { s_IsClosed = true; }
-        void UnsetClosed() override { s_IsClosed = false; }
+        void SetClosed() override;
+        void UnsetClosed() override;
 
     private:
         static std::atomic<bool> s_IsClosed;
+        static std::atomic<bool> s_ThreadClosed;
+        static const std::thread::id s_MainThreadId;
 
         static Socket* const s_CSocket;
     };

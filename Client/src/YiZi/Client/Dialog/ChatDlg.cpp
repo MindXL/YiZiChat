@@ -94,8 +94,8 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
     const auto* const response_header = (YiZi::Packet::PacketHeader*)m_pChatResponseBuffer;
     while (true)
     {
-        socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
-        if (socket->IsClosed())
+        if (const auto count = socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
+            count <= 0)
             break;
 
         if (response_header->type != (uint8_t)YiZi::Packet::PacketType::ChatMessageResponse)
