@@ -104,7 +104,7 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
             continue;
         }
 
-        ::SendMessage(hWnd, WM_RECVDATA, 0, 0);
+        ::PostMessage(hWnd, WM_RECVDATA, 0, 0);
         std::this_thread::yield();
     }
 
