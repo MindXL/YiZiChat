@@ -145,7 +145,7 @@ namespace YiZi::Server
                                         .bind("phone", phone.data())
                                         .execute();
 #ifdef YZ_DEBUG
-        if (result.count() != 1)
+        if (result.count() != 0 && result.count() != 1)
         {
             // This means "There are multiple users who have the same phone number in database".
             // If this is triggered, then there is something wrong in sql statements.
