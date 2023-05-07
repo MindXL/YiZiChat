@@ -15,14 +15,12 @@ CREATE TABLE `User` (
     `is_admin` TINYINT NOT NULL DEFAULT 0 CHECK(`is_admin` IN (0, 1))
 ) AUTO_INCREMENT=1;
 
-/*
 CREATE TABLE `Channel` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(20) NOT NULL,
-    `join_time` TIMESTAMP NOT NULL,
+    `id` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(20) NOT NULL CHECK(char_length(`name`) >= 2),
+    `join_time` BIGINT UNSIGNED NOT NULL,
     `description` VARCHAR(500)
 );
-*/
 
 CREATE TABLE `Transcript` (
     -- `cid` INT NOT NULL,
@@ -58,8 +56,7 @@ INSERT INTO `User`(`phone`,`password`,`nickname`,`join_time`,`is_admin`) VALUES
 ('15598765432','987654321','user155',unix_timestamp(now()) * 1000,0),
 ('16648918761','1q2w3e4r5t_-','一二三四',unix_timestamp(now()) * 1000,1);
 
-/*
 INSERT INTO `Channel`(`name`,`join_time`,`description`) VALUES
-("频道1",now(),"频道1的描述"),
-("频道2",now(),"频道2的描述");
-*/
+("频道1",unix_timestamp(now()) * 1000,"频道1的描述。"),
+("频道2",unix_timestamp(now()) * 1000,"频道2的描述。"),
+("Channel A",unix_timestamp(now()) * 1000,"Description of Channel A.");

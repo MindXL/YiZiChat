@@ -1,7 +1,7 @@
 ﻿#ifndef PCH_H
 #define PCH_H
 
-#include "framework.h"
+#include "../../../framework.h"
 
 #include <YiZi/YiZi.h>
 
@@ -11,10 +11,14 @@
 #include <mutex>
 #include <atomic>
 
+#include <map>
+
 #include <YiZi/Client/Core/Buffer.h>
 #include <YiZi/Client/Core/InputControl.h>
 #include <YiZi/Client/Core/CSocket.h>
 #include <YiZi/Client/Core/User.h>
 #include <YiZi/Client/Core/DialogBoxCommandID.h>
+#include <YiZi/Client/Core/Channel.h>
+#include <YiZi/Client/Core/ChannelHashtable.h>
 
 #endif //PCH_H

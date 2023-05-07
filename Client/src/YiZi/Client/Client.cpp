@@ -2,10 +2,11 @@
 //
 
 #include "pch.h"
-#include "framework.h"
+#include "../../../framework.h"
 #include "Client.h"
 
 #include <YiZi/Client/Dialog/LoginDlg.h>
+#include <YiZi/Client/Dialog/SelectChannelDlg.h>
 #include <YiZi/Client/Dialog/ChatDlg.h>
 
 #ifdef _DEBUG
@@ -121,6 +122,19 @@ void CClientApp::Main()
             TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
             break;
         }
+
+        dlg = new CSelectChannelDlg();
+        nResponse = dlg->DoModal();
+        delete dlg;
+        if (nResponse == IDCANCEL)
+            break;
+        if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+        {
+            TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+            TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+            break;
+        }
+        // TODO: Handle if user closes CSelectChannelDlg.
 
         dlg = new CChatDlg{};
         //m_pMainWnd = dlg;

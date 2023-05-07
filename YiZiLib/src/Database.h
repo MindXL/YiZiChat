@@ -32,7 +32,6 @@ namespace YiZi::Database
         }
     }
 
-    /*
     namespace Channel
     {
         NAME name = "Channel";
@@ -48,12 +47,12 @@ namespace YiZi::Database
         namespace ItemLength
         {
             // name
+            LEN NAME_MIN_LENGTH = 2;
             LEN NAME_MAX_LENGTH = 20;
             // description
             LEN DESCRIPTION_MAX_LENGTH = 500;
         }
     }
-    */
 
     namespace Transcript
     {

@@ -12,6 +12,7 @@
 #define IDD_CHAT_DIALOG                 131
 #define IDR_CHAT_MENU                   133
 #define IDD_USER_INFO_DIALOG            134
+#define IDD_SELECT_CHANNEL_DIALOG       136
 #define IDC_txtPhone                    1000
 #define IDC_txtPassword                 1002
 #define IDC_EDIT_TRANSCRIPT             1003
@@ -22,6 +23,8 @@
 #define IDC_EDIT_PASSWORD               1008
 #define IDC_EDIT_NICKNAME               1009
 #define IDC_EDIT_JOIN_TIME              1010
+#define IDC_BUTTON_JOIN                 1012
+#define IDC_lbChannel                   1013
 #define ID_32771                        32771
 #define ID_USER_INFO                    32772
 #define ID_32773                        32773
@@ -33,9 +36,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32777
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

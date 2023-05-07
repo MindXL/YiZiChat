@@ -40,6 +40,7 @@ namespace YiZi::Server
         {
         case Packet::PacketType::LoginRequest: return HandleLoginRequest();
         case Packet::PacketType::LogoutRequest: return HandleLogoutRequest();
+        case Packet::PacketType::ChannelListRequest: return HandleChannelListRequest();
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         default: return false;
         }
@@ -66,6 +67,66 @@ namespace YiZi::Server
     {
         LoginMap::Get()->erase(m_UserId);
         return false;
+    }
+
+    bool ConnectionHandler::HandleChannelListRequest() const
+    {
+        // TODO: Maybe move database request to a thread.
+        // TODO: Cache channel data on server.
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tChannel = db->getTable(Database::Channel::name);
+        mysqlx::RowResult result = tChannel.select(
+            Database::Channel::Item::id,
+            Database::Channel::Item::name,
+            Database::Channel::Item::join_time,
+            Database::Channel::Item::description
+        ).execute();
+
+        const uint32_t count = (uint32_t)result.count(); // TODO: Limit the number of channels.
+
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
+
+        {
+            /* Inform the client of the number of channels. */
+            response_header->type = (uint8_t)Packet::PacketType::ChannelListResponse;
+
+            auto* const response_data = reinterpret_cast<Packet::ChannelListResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+            response_data->count = count;
+
+            constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANNEL_LIST_RESPONSE_LENGTH;
+            if (const bool success = m_Client->Send(m_ResBuffer, response_len);
+                !success)
+                return false;
+        }
+        if (count == 0)
+            return true;
+
+        {
+            /* Send the details of each channel. */
+            response_header->type = (uint8_t)Packet::PacketType::ChannelDetailResponse;
+            auto* const response_data = reinterpret_cast<Packet::ChannelDetailResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+            for (const auto& row : result)
+            {
+                response_data->id = row[0].get<decltype(response_data->id)>();
+
+                const auto& [name, nameByteCount] = row[1].getRawBytes();
+                memcpy(response_data->name, name, nameByteCount);
+                *((char16_t*)response_data->name + nameByteCount / sizeof(char16_t)) = u'\0';
+
+                response_data->join_time = row[2].get<decltype(response_data->join_time)>();
+
+                const auto& [description, descriptionByteCount] = row[3].getRawBytes();
+                memcpy(response_data->description, description, descriptionByteCount);
+                *((char16_t*)response_data->description + descriptionByteCount / sizeof(char16_t)) = u'\0';
+
+                constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANNEL_DETAIL_RESPONSE_LENGTH;
+                if (const bool success = m_Client->Send(m_ResBuffer, response_len);
+                    !success)
+                    return false;
+            }
+        }
+        return true;
     }
 
     bool ConnectionHandler::HandleChatMessageRequest() const

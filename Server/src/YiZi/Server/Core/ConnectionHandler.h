@@ -22,6 +22,7 @@ namespace YiZi::Server
 
         [[nodiscard]] bool HandleLoginRequest();
         [[nodiscard]] bool HandleLogoutRequest() const;
+        [[nodiscard]] bool HandleChannelListRequest() const;
         [[nodiscard]] bool HandleChatMessageRequest() const;
 
         [[nodiscard]] bool ValidateUserLogin();

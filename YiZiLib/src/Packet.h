@@ -10,6 +10,8 @@ namespace YiZi::Packet
     {
         LoginRequest, LoginResponse,
         LogoutRequest,
+        ChannelListRequest, ChannelListResponse,
+        ChannelDetailResponse,
         ChatMessageRequest, ChatMessageResponse,
     };
 
@@ -52,6 +54,27 @@ namespace YiZi::Packet
 
     static constexpr int LOGOUT_REQUEST_LENGTH = 0;
 
+    struct ChannelListRequest {};
+
+    static constexpr int CHANNEL_LIST_REQUEST_LENGTH = 0;
+
+    struct ChannelListResponse
+    {
+        uint32_t count;
+    };
+
+    static constexpr int CHANNEL_LIST_RESPONSE_LENGTH = sizeof(ChannelListResponse);
+
+    struct ChannelDetailResponse
+    {
+        uint32_t id;
+        uint8_t name[(Database::Channel::ItemLength::NAME_MAX_LENGTH + 1) * sizeof(char16_t)];
+        uint64_t join_time;
+        uint8_t description[(Database::Channel::ItemLength::DESCRIPTION_MAX_LENGTH + 1) * sizeof(char16_t)];
+    };
+
+    static constexpr int CHANNEL_DETAIL_RESPONSE_LENGTH = sizeof(ChannelDetailResponse);
+
     struct ChatMessageRequest
     {
         uint32_t id;
@@ -80,6 +103,7 @@ namespace YiZi::Packet
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_REQUEST_LENGTH,
                    LOGOUT_REQUEST_LENGTH,
+                   CHANNEL_LIST_REQUEST_LENGTH,
                    CHAT_MESSAGE_REQUEST_LENGTH,
                    0
                });
@@ -89,6 +113,8 @@ namespace YiZi::Packet
     {
         return PACKET_HEADER_LENGTH + std::max({
                    LOGIN_RESPONSE_LENGTH,
+                   CHANNEL_LIST_RESPONSE_LENGTH,
+                   CHANNEL_DETAIL_RESPONSE_LENGTH,
                    CHAT_MESSAGE_RESPONSE_LENGTH,
                    0
                });
