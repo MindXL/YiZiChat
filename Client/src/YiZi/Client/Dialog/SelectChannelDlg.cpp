@@ -78,6 +78,12 @@ void CSelectChannelDlg::HandleChannelListResponse(YiZi::Client::CSocket* socket,
     const auto* const response_data = reinterpret_cast<YiZi::Packet::ChannelListResponse*>(resBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
     const uint32_t count = response_data->count;
 
+    if (count == 0)
+    {
+        AfxMessageBox(_T("当前暂无频道运行在服务器上。"));
+        return;
+    }
+
     // TODO: Make this async.
     // TODO: Handle failure.
     for (uint32_t _ = 0; _ < count; ++_)
