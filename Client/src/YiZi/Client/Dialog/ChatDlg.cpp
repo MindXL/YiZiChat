@@ -193,7 +193,6 @@ BOOL CChatDlg::DestroyWindow()
     }
 
     delete m_pChatRequestBuffer;
-    delete m_pChatResponseBuffer;
 
     return CDialogEx::DestroyWindow();
 }

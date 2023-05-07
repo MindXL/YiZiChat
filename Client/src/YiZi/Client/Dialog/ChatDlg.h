@@ -47,7 +47,7 @@ private:
     static constexpr int s_iChatResponseBufferLen = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
     // 聊天界面单独设定一个Request buffer和Response buffer.
     uint8_t* m_pChatRequestBuffer = new uint8_t[s_iChatRequestBufferLen]{};
-    static inline uint8_t* m_pChatResponseBuffer = new uint8_t[s_iChatResponseBufferLen]{};
+    static inline uint8_t m_pChatResponseBuffer[s_iChatResponseBufferLen]{};
 
     std::thread m_tListenChatMessageThread{};
 
