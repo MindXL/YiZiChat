@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "afxdialogex.h"
 
+#include <YiZi/Client/Core/Channel.h>
+
 #define WM_RECV_CHANNEL (WM_USER + 1)
 
 // CSelectChannelDlg 对话框
@@ -37,7 +39,7 @@ private:
 
 private:
     // std::unordered_map<m_lbChannel中的序号，所对应的频道id>
-    std::unordered_map<int, uint32_t> m_umChannelMap;
+    std::unordered_map<int, YiZi::Client::Channel> m_umChannelMap;
 
     std::thread m_tFetchChannelListThread{};
 

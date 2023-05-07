@@ -11,7 +11,6 @@
 #include <mutex>
 #include <atomic>
 
-#include <map>
 #include <unordered_map>
 
 #include <YiZi/Client/Core/Buffer.h>
@@ -20,6 +19,5 @@
 #include <YiZi/Client/Core/User.h>
 #include <YiZi/Client/Core/DialogBoxCommandID.h>
 #include <YiZi/Client/Core/Channel.h>
-#include <YiZi/Client/Core/ChannelHashtable.h>
 
 #endif //PCH_H

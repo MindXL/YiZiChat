@@ -105,14 +105,12 @@ void CSelectChannelDlg::HandleChannelDetailResponse(YiZi::Client::CSocket* socke
     }
 
     const auto* const response_data = reinterpret_cast<YiZi::Packet::ChannelDetailResponse*>(resBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
-    const auto* const pChannel = &(YiZi::Client::ChannelHashtable::Get()->emplace(response_data->id,
-                                                                                  YiZi::Client::Channel
-                                                                                  {
-                                                                                      response_data->id,
-                                                                                      std::move(CString{(const wchar_t*)response_data->name}),
-                                                                                      response_data->join_time,
-                                                                                      std::move(CString{(const wchar_t*)response_data->description})
-                                                                                  }).first->second);
+    const auto* const pChannel = new YiZi::Client::Channel{
+        response_data->id,
+        std::move(CString{(const wchar_t*)response_data->name}),
+        response_data->join_time,
+        std::move(CString{(const wchar_t*)response_data->description})
+    };
     ::PostMessage(hwnd, WM_RECV_CHANNEL, (WPARAM)pChannel, 0);
 }
 
@@ -150,9 +148,8 @@ void CSelectChannelDlg::OnBnClickedRefresh()
     // TODO: Close thread.
     if (m_tFetchChannelListThread.joinable())
         m_tFetchChannelListThread.join();
-    m_umChannelMap.clear();
     m_lbChannel.ResetContent();
-    YiZi::Client::ChannelHashtable::Get()->clear();
+    m_umChannelMap.clear();
 
     m_tFetchChannelListThread = std::thread{FetchChannelList, GetSafeHwnd()};
     m_tFetchChannelListThread.detach();
@@ -163,7 +160,8 @@ afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lPa
     const auto* const pChannel = reinterpret_cast<YiZi::Client::Channel*>(wParam);
 
     const int number = m_lbChannel.AddString(pChannel->GetName());
-    m_umChannelMap.emplace(number, pChannel->GetId());
+    m_umChannelMap.emplace(number, std::move(*pChannel));
+    delete pChannel;
 
     return 0;
 }
