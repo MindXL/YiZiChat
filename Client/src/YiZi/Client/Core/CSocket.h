@@ -7,6 +7,7 @@ namespace YiZi::Client
     {
     public:
         explicit CSocket(const Socket* other);
+        ~CSocket() override;
 
         void Initialize() override;
         void Close() override;
@@ -29,6 +30,8 @@ namespace YiZi::Client
         void UnsetClosed() override;
 
     private:
+        bool m_IsAttached=true;
+
         static std::atomic<bool> s_IsClosed;
         static std::atomic<bool> s_ThreadClosed;
         static const std::thread::id s_MainThreadId;

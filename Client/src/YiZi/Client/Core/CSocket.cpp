@@ -21,6 +21,12 @@ namespace YiZi::Client
         m_Socket.Attach(other->GetSocket());
     }
 
+    CSocket::~CSocket()
+    {
+        if (m_IsAttached)
+            m_Socket.Detach();
+    }
+
     void CSocket::Initialize()
     {
 #ifdef YZ_DEBUG
@@ -35,7 +41,11 @@ namespace YiZi::Client
     {
         m_Socket.CancelBlockingCall();
         m_Socket.ShutDown();
-        m_Socket.Detach();
+        if (m_IsAttached)
+        {
+            m_Socket.Detach();
+            m_IsAttached = false;
+        }
         m_Socket.Close();
         SetClosed();
     }
