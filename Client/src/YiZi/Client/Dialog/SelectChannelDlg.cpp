@@ -24,11 +24,11 @@ void CSelectChannelDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_JOIN, &CSelectChannelDlg::OnBnClickedButtonJoin)
     ON_MESSAGE(WM_RECV_CHANNEL, &CSelectChannelDlg::OnRecvChannel)
+    ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CSelectChannelDlg::OnBnClickedRefresh)
 END_MESSAGE_MAP()
 
 void CSelectChannelDlg::FetchChannelList(const HWND hwnd)
 {
-    YiZi::Client::ChannelHashtable::Get()->clear();
     auto* const socket = new YiZi::Client::CSocket{YiZi::Client::CSocket::Get()};
 
     // TODO: Auto retry if fetching fails.
@@ -144,6 +144,19 @@ BOOL CSelectChannelDlg::DestroyWindow()
 }
 
 void CSelectChannelDlg::OnBnClickedButtonJoin() {}
+
+void CSelectChannelDlg::OnBnClickedRefresh()
+{
+    // TODO: Close thread.
+    if (m_tFetchChannelListThread.joinable())
+        m_tFetchChannelListThread.join();
+    m_umChannelMap.clear();
+    m_lbChannel.ResetContent();
+    YiZi::Client::ChannelHashtable::Get()->clear();
+
+    m_tFetchChannelListThread = std::thread{FetchChannelList, GetSafeHwnd()};
+    m_tFetchChannelListThread.detach();
+}
 
 afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lParam)
 {

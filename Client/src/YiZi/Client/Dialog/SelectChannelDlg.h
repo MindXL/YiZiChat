@@ -32,6 +32,7 @@ private:
     BOOL OnInitDialog() override;
     BOOL DestroyWindow() override;
     afx_msg void OnBnClickedButtonJoin();
+    afx_msg void OnBnClickedRefresh();
     afx_msg LRESULT OnRecvChannel(WPARAM wParam, LPARAM lParam);
 
 private:
