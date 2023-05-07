@@ -143,7 +143,8 @@ afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lPa
 {
     const auto* const pChannel = reinterpret_cast<YiZi::Client::Channel*>(wParam);
 
-    m_lbChannel.AddString(pChannel->GetName());
+    const int number = m_lbChannel.AddString(pChannel->GetName());
+    m_umChannelMap.emplace(number, pChannel->GetId());
 
     return 0;
 }

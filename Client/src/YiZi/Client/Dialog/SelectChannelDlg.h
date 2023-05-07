@@ -35,7 +35,10 @@ private:
     afx_msg LRESULT OnRecvChannel(WPARAM wParam, LPARAM lParam);
 
 private:
-    CListBox m_lbChannel;
+    // std::unordered_map<m_lbChannel中的序号，所对应的频道id>
+    std::unordered_map<int, uint32_t> m_umChannelMap;
 
     std::thread m_tFetchChannelListThread{};
+
+    CListBox m_lbChannel;
 };

@@ -12,6 +12,7 @@
 #include <atomic>
 
 #include <map>
+#include <unordered_map>
 
 #include <YiZi/Client/Core/Buffer.h>
 #include <YiZi/Client/Core/InputControl.h>
