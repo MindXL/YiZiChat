@@ -171,6 +171,7 @@ void CChatDlg::OnLogout()
     HandleLogoutRequest(); // Don't call socket to close after this, because sever-end closed the connection.
 
     YiZi::Client::User::Delete();
+    YiZi::Client::Channel::DeleteCurrentChannel();
 
     EndDialog(YiZi::Client::DialogBoxCommandID::CID_LOGOUT);
 }

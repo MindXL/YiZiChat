@@ -141,7 +141,13 @@ BOOL CSelectChannelDlg::DestroyWindow()
     return CDialogEx::DestroyWindow();
 }
 
-void CSelectChannelDlg::OnBnClickedButtonJoin() {}
+void CSelectChannelDlg::OnBnClickedButtonJoin()
+{
+    const int selected = m_lbChannel.GetCurSel();
+    YiZi::Client::Channel::NewCurrentChannel(std::move(m_umChannelMap.at(selected)));
+
+    CDialogEx::OnOK();
+}
 
 void CSelectChannelDlg::OnBnClickedRefresh()
 {

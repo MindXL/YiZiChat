@@ -12,7 +12,9 @@ namespace YiZi::Client
         [[nodiscard]] uint64_t GetJoinTime() const { return m_JoinTime; }
         [[nodiscard]] const CString& GetDescription() const { return m_Description; }
 
-        static const Channel* GetCurrentChannel() { return s_CurrentChannel; }
+        static void NewCurrentChannel(Channel&& channel);
+        [[nodiscard]] static const Channel* GetCurrentChannel() { return s_CurrentChannel; }
+        static void DeleteCurrentChannel();
 
     private:
         const uint32_t m_Id;
