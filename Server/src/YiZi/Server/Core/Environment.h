@@ -11,7 +11,7 @@ namespace YiZi::Server
     public:
         static Environment* Get() { return s_Environment; }
 
-        void CheckEnvironment();
+        void CheckOuterEnvironment();
 
         [[nodiscard]] std::filesystem::path GetSubDirPath() const { return m_SubDirectoryPath; }
         [[nodiscard]] std::filesystem::path GetDBConfigFilePath() const { return m_DatabaseConfigFilePath; }
@@ -24,9 +24,15 @@ namespace YiZi::Server
         [[nodiscard]] static const char* GetDBName() { return s_DBName; }
         [[nodiscard]] bool IsDatabaseConfigReady() const { return m_IsDatabaseConfigReady; }
 
+        void CheckInnerEnvironment();
+
+        [[nodiscard]] bool IsChannelMapReady() const { return m_IsChannelMapReady; }
+
     private:
         void CheckDirectories();
         void CheckDatabaseConfigFile();
+
+        void LoadChannelMap();
 
     private:
         std::filesystem::path m_RootDirectoryPath;
@@ -44,6 +50,8 @@ namespace YiZi::Server
         std::string m_DBPassword;
         static constexpr const char* s_DBName = "YiZiChat";
         bool m_IsDatabaseConfigReady = false;
+
+        bool m_IsChannelMapReady = false;
 
         static Environment* s_Environment;
     };

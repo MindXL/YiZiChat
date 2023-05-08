@@ -7,6 +7,7 @@
 #include "BufferManager.h"
 #include "MySQLConnector.h"
 #include "LoginMap.h"
+#include "Channel.h"
 
 namespace YiZi::Server
 {
@@ -71,18 +72,9 @@ namespace YiZi::Server
 
     bool ConnectionHandler::HandleChannelListRequest() const
     {
-        // TODO: Maybe move database request to a thread.
-        // TODO: Cache channel data on server.
-        auto* const db = MySQLConnector::Get()->GetSchema();
-        mysqlx::Table tChannel = db->getTable(Database::Channel::name);
-        mysqlx::RowResult result = tChannel.select(
-            Database::Channel::Item::id,
-            Database::Channel::Item::name,
-            Database::Channel::Item::join_time,
-            Database::Channel::Item::description
-        ).execute();
+        const auto* const channelMap = ChannelMap::Get();
 
-        const uint32_t count = (uint32_t)result.count(); // TODO: Limit the number of channels.
+        const uint32_t count = (uint32_t)channelMap->size(); // TODO: Limit the number of channels.
 
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
 
@@ -106,19 +98,19 @@ namespace YiZi::Server
             response_header->type = (uint8_t)Packet::PacketType::ChannelDetailResponse;
             auto* const response_data = reinterpret_cast<Packet::ChannelDetailResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
 
-            for (const auto& row : result)
+            for (const auto& [cid, channel] : *channelMap)
             {
-                response_data->id = row[0].get<decltype(response_data->id)>();
+                response_data->id = cid;
 
-                const auto& [name, nameByteCount] = row[1].getRawBytes();
-                memcpy(response_data->name, name, nameByteCount);
-                *((char16_t*)response_data->name + nameByteCount / sizeof(char16_t)) = u'\0';
+                const auto& name = channel.GetName();
+                memcpy(response_data->name, name.c_str(), name.length() * sizeof(char16_t));
+                *((char16_t*)response_data->name + name.length()) = u'\0';
 
-                response_data->join_time = row[2].get<decltype(response_data->join_time)>();
+                response_data->join_time = channel.GetJoinTime();
 
-                const auto& [description, descriptionByteCount] = row[3].getRawBytes();
-                memcpy(response_data->description, description, descriptionByteCount);
-                *((char16_t*)response_data->description + descriptionByteCount / sizeof(char16_t)) = u'\0';
+                const auto& description = channel.GetDescription();
+                memcpy(response_data->description, description.c_str(), description.length() * sizeof(char16_t));
+                *((char16_t*)response_data->description + description.length()) = u'\0';
 
                 constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANNEL_DETAIL_RESPONSE_LENGTH;
                 if (const bool success = m_Client->Send(m_ResBuffer, response_len);

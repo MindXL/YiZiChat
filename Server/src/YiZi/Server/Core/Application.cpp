@@ -14,8 +14,9 @@ namespace YiZi::Server
     {
         try
         {
-            Environment::Get()->CheckEnvironment();
+            Environment::Get()->CheckOuterEnvironment();
             MySQLConnector::Get()->Connect();
+            Environment::Get()->CheckInnerEnvironment();
         }
         catch (const std::runtime_error&)
         {

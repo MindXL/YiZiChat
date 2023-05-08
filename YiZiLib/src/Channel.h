@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 
 namespace YiZi
@@ -26,7 +27,7 @@ namespace YiZi
 
     // <channel id, channel info>
     template<typename string_t>
-    using ChannelMapBase = std::unordered_map<uint32_t, ChannelBase<string_t>>;
+    using ChannelMapBase = std::map<uint32_t, ChannelBase<string_t>>;
 
     // <channel id, logged-in user's ids>
     using ChannelConnectionMapBase = std::unordered_map<uint32_t, std::unordered_set<uint32_t>>;

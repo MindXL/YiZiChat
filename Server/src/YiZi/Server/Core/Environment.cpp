@@ -6,19 +6,29 @@
 #include <unistd.h>
 #include <pwd.h>
 
+#include "MySQLConnector.h"
+#include "Channel.h"
+
 namespace YiZi::Server
 {
     Environment* Environment::s_Environment = new Environment{};
 
-    void Environment::CheckEnvironment()
+    void Environment::CheckOuterEnvironment()
     {
         CheckDirectories();
         if (!IsDirectoryReady())
-            throw std::runtime_error{"[Environment]: Creating directories failed."};
+            throw std::runtime_error{"[Outer Environment]: Creating directories failed."};
 
         CheckDatabaseConfigFile();
         if (!IsDatabaseConfigReady())
-            throw std::runtime_error{"[Environment]: Configuring for database connection failed."};
+            throw std::runtime_error{"[Outer Environment]: Configuring for database connection failed."};
+    }
+
+    void Environment::CheckInnerEnvironment()
+    {
+        LoadChannelMap();
+        if (!IsChannelMapReady())
+            throw std::runtime_error{"[Inner Environment]: Initializing ChannelMap failed."};
     }
 
     void Environment::CheckDirectories()
@@ -89,5 +99,41 @@ namespace YiZi::Server
         }
 
         m_IsDatabaseConfigReady = true;
+    }
+
+    void Environment::LoadChannelMap()
+    {
+#ifdef YZ_DEBUG
+        // Control this strictly.
+        if (!MySQLConnector::Get()->IsConnected())
+            __asm("int3");
+#endif
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tChannel = db->getTable(Database::Channel::name);
+        mysqlx::RowResult result = tChannel.select(
+            Database::Channel::Item::id,
+            Database::Channel::Item::name,
+            Database::Channel::Item::join_time,
+            Database::Channel::Item::description
+        ).execute();
+
+        auto* const channelMap = ChannelMap::Get();
+        auto* const channelConnectionMap = ChannelConnectionMap::Get();
+        for (const auto& row : result)
+        {
+            const auto cid = row[0].get<decltype(std::declval<Channel>().GetId())>();
+            channelMap->emplace(cid,
+                                Channel
+                                {
+                                    cid,
+                                    std::u16string{(const char16_t*)row[1].getRawBytes().first},
+                                    row[2].get<decltype(std::declval<Channel>().GetJoinTime())>(),
+                                    std::u16string{(const char16_t*)row[3].getRawBytes().first}
+                                });
+            channelConnectionMap->emplace(cid, std::unordered_set<uint32_t>{});
+        }
+
+        m_IsChannelMapReady = true;
     }
 }
