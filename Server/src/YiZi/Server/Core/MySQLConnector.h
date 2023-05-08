@@ -13,6 +13,8 @@ namespace YiZi::Server
         void Connect();
         void Disconnect();
 
+        [[nodiscard]] bool IsConnected() const { return m_IsConnected; }
+
         [[nodiscard]] mysqlx::Schema* GetSchema() const { return m_Schema; }
 
         [[nodiscard]] static MySQLConnector* Get() { return s_MySQLConnector; }
@@ -20,6 +22,8 @@ namespace YiZi::Server
     private:
         mysqlx::Session* m_Session;
         mysqlx::Schema* m_Schema;
+
+        bool m_IsConnected;
 
         static MySQLConnector* s_MySQLConnector;
     };

@@ -9,10 +9,16 @@ namespace YiZi::Server
     MySQLConnector* MySQLConnector::s_MySQLConnector = new MySQLConnector{};
 
     MySQLConnector::MySQLConnector()
-        : m_Session{nullptr}, m_Schema{nullptr} {}
+        : m_Session{nullptr}, m_Schema{nullptr}, m_IsConnected{false} {}
 
     void MySQLConnector::Connect()
     {
+#ifdef YZ_DEBUG
+        // Control this strictly.
+        if (m_IsConnected)
+            __asm("int3");
+#endif
+
         if (m_Session != nullptr || m_Schema != nullptr)
             throw std::logic_error{"[MySQLConnector]: Connect() was called when there exists a connection."};
 
@@ -31,10 +37,18 @@ namespace YiZi::Server
         std::cout << "Success." << std::endl;
 
         m_Schema = new mysqlx::Schema{m_Session->getSchema(Environment::GetDBName(), true)};
+
+        m_IsConnected = true;
     }
 
     void MySQLConnector::Disconnect()
     {
+#ifdef YZ_DEBUG
+        // Control this strictly.
+        if (!m_IsConnected)
+            __asm("int3");
+#endif
+
         if (m_Schema != nullptr)
         {
             delete m_Schema;
@@ -46,5 +60,7 @@ namespace YiZi::Server
             delete m_Session;
             m_Session = nullptr;
         }
+
+        m_IsConnected = false;
     }
 }
