@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\YiZi\YiZi.h" />
+    <ClInclude Include="src\Channel.h" />
     <ClInclude Include="src\Database.h" />
     <ClInclude Include="src\Packet.h" />
     <ClInclude Include="src\Socket.h" />

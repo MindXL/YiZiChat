@@ -83,7 +83,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>/usr/include/mysql-cppconn-8;$(SolutionDir)YiZiLib\include;$(IncludePath)</IncludePath>
     <LibraryPath>/usr/lib/x86_64-linux-gnu</LibraryPath>
-    <AdditionalSourcesToCopyMapping>$(SolutionDir)YiZiLib\include\YiZi\YiZi.h:=$(RemoteRootDir)/YiZiLib/include/YiZi/YiZi.h;$(SolutionDir)YiZiLib\src\Packet.h:=$(RemoteRootDir)/YiZiLib/src/Packet.h;$(SolutionDir)YiZiLib\src\Type.h:=$(RemoteRootDir)/YiZiLib/src/Type.h;$(SolutionDir)YiZiLib\src\Socket.h:=$(RemoteRootDir)/YiZiLib/src/Socket.h;$(SolutionDir)YiZiLib\src\Database.h:=$(RemoteRootDir)/YiZiLib/src/Database.h;$(AdditionalSourcesToCopyMapping)</AdditionalSourcesToCopyMapping>
+    <AdditionalSourcesToCopyMapping>$(SolutionDir)YiZiLib\include\YiZi\YiZi.h:=$(RemoteRootDir)/YiZiLib/include/YiZi/YiZi.h;$(SolutionDir)YiZiLib\src\Packet.h:=$(RemoteRootDir)/YiZiLib/src/Packet.h;$(SolutionDir)YiZiLib\src\Type.h:=$(RemoteRootDir)/YiZiLib/src/Type.h;$(SolutionDir)YiZiLib\src\Socket.h:=$(RemoteRootDir)/YiZiLib/src/Socket.h;$(SolutionDir)YiZiLib\src\Database.h:=$(RemoteRootDir)/YiZiLib/src/Database.h;$(SolutionDir)YiZiLib\src\Channel.h:=$(RemoteRootDir)/YiZiLib/src/Channel.h;$(AdditionalSourcesToCopyMapping)</AdditionalSourcesToCopyMapping>
     <RemoteCopySourceMethod>
     </RemoteCopySourceMethod>
   </PropertyGroup>
@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="src\YiZi\Server\Core\Application.cpp" />
     <ClCompile Include="src\YiZi\Server\Core\BufferManager.cpp" />
+    <ClCompile Include="src\YiZi\Server\Core\Channel.cpp" />
     <ClCompile Include="src\YiZi\Server\Core\ConnectionHandler.cpp" />
     <ClCompile Include="src\YiZi\Server\Core\Environment.cpp" />
     <ClCompile Include="src\YiZi\Server\Core\LoginMap.cpp" />
@@ -107,6 +108,7 @@
   <ItemGroup>
     <ClInclude Include="src\YiZi\Server\Core\Application.h" />
     <ClInclude Include="src\YiZi\Server\Core\BufferManager.h" />
+    <ClInclude Include="src\YiZi\Server\Core\Channel.h" />
     <ClInclude Include="src\YiZi\Server\Core\ConnectionHandler.h" />
     <ClInclude Include="src\YiZi\Server\Core\Environment.h" />
     <ClInclude Include="src\YiZi\Server\Core\LoginMap.h" />
