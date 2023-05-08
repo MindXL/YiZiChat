@@ -12,6 +12,7 @@ namespace YiZi::Packet
         LogoutRequest,
         ChannelListRequest, ChannelListResponse,
         ChannelDetailResponse,
+        ChannelConnectionRequest, ChannelConnectionResponse,
         ChatMessageRequest, ChatMessageResponse,
     };
 
@@ -75,6 +76,26 @@ namespace YiZi::Packet
 
     static constexpr int CHANNEL_DETAIL_RESPONSE_LENGTH = sizeof(ChannelDetailResponse);
 
+    struct ChannelConnectionRequest
+    {
+        uint32_t cid; // channel id
+    };
+
+    static constexpr int CHANNEL_CONNECTION_REQUEST_LENGTH = sizeof(ChannelConnectionRequest);
+
+    enum class ChannelConnectionFailReason : uint8_t
+    {
+        ChannelNotExist
+    };
+
+    struct ChannelConnectionResponse
+    {
+        uint8_t isValid;
+        uint8_t reason; // Only makes sense if "isValid == false".
+    };
+
+    static constexpr int CHANNEL_CONNECTION_RESPONSE_LENGTH = sizeof(ChannelConnectionResponse);
+
     struct ChatMessageRequest
     {
         uint32_t id;
@@ -104,6 +125,7 @@ namespace YiZi::Packet
                    LOGIN_REQUEST_LENGTH,
                    LOGOUT_REQUEST_LENGTH,
                    CHANNEL_LIST_REQUEST_LENGTH,
+                   CHANNEL_CONNECTION_REQUEST_LENGTH,
                    CHAT_MESSAGE_REQUEST_LENGTH,
                    0
                });
@@ -115,6 +137,7 @@ namespace YiZi::Packet
                    LOGIN_RESPONSE_LENGTH,
                    CHANNEL_LIST_RESPONSE_LENGTH,
                    CHANNEL_DETAIL_RESPONSE_LENGTH,
+                   CHANNEL_CONNECTION_RESPONSE_LENGTH,
                    CHAT_MESSAGE_RESPONSE_LENGTH,
                    0
                });

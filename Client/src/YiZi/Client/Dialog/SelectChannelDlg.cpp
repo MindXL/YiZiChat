@@ -25,6 +25,8 @@ BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_JOIN, &CSelectChannelDlg::OnBnClickedButtonJoin)
     ON_MESSAGE(WM_RECV_CHANNEL, &CSelectChannelDlg::OnRecvChannel)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CSelectChannelDlg::OnBnClickedRefresh)
+    ON_MESSAGE(WM_CHANNEL_CONNECTION_SUCCESS, &CSelectChannelDlg::OnChannelConnectionSuccess)
+    ON_MESSAGE(WM_CHANNEL_CONNECTION_FAILURE, &CSelectChannelDlg::OnChannelConnectionFailure)
 END_MESSAGE_MAP()
 
 void CSelectChannelDlg::FetchChannelList(const HWND hwnd)
@@ -114,6 +116,74 @@ void CSelectChannelDlg::HandleChannelDetailResponse(YiZi::Client::CSocket* socke
     ::PostMessage(hwnd, WM_RECV_CHANNEL, (WPARAM)pChannel, 0);
 }
 
+void CSelectChannelDlg::ConnectChannel(HWND hwnd)
+{
+    auto* const socket = new YiZi::Client::CSocket{YiZi::Client::CSocket::Get()};
+
+    if (!HandleChannelConnectionRequest(socket))
+        return;
+    HandleChannelConnectionResponse(socket, hwnd);
+
+    delete socket;
+}
+
+bool CSelectChannelDlg::HandleChannelConnectionRequest(YiZi::Client::CSocket* socket)
+{
+#ifdef YZ_DEBUG
+    // Ensure socket is open.
+    if (socket->IsClosed())
+        __debugbreak();
+#endif
+
+    uint8_t* const reqBuffer = YiZi::Client::Buffer::Get()->GetReqBuffer();
+    constexpr int request_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHANNEL_CONNECTION_REQUEST_LENGTH;
+
+    auto* const request_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(reqBuffer);
+    request_header->type = (uint8_t)YiZi::Packet::PacketType::ChannelConnectionRequest;
+
+    auto* const request_data = reinterpret_cast<YiZi::Packet::ChannelConnectionRequest*>(reqBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
+    request_data->cid = YiZi::Client::Channel::GetCurrentChannel()->GetId();
+
+    if (!socket->Send(reqBuffer, request_len))
+    {
+        AfxMessageBox(_T("频道信息请求失败。"));
+        return false;
+    }
+    return true;
+}
+
+void CSelectChannelDlg::HandleChannelConnectionResponse(YiZi::Client::CSocket* socket, HWND hwnd)
+{
+#ifdef YZ_DEBUG
+    // Ensure socket is open.
+    if (socket->IsClosed())
+        __debugbreak();
+#endif
+
+    uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
+    constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHANNEL_CONNECTION_RESPONSE_LENGTH;
+
+    socket->Receive(resBuffer, response_len);
+
+    const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
+    if (response_header->type != (uint8_t)YiZi::Packet::PacketType::ChannelConnectionResponse)
+    {
+        // TODO: Handle.
+        return;
+    }
+
+    const auto* const response_data = reinterpret_cast<YiZi::Packet::ChannelConnectionResponse*>(resBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
+    if (static_cast<bool>(response_data->isValid))
+    {
+        ::PostMessage(hwnd, WM_CHANNEL_CONNECTION_SUCCESS, 0, 0);
+    }
+    else
+    {
+        const auto* const reason = new YiZi::Packet::ChannelConnectionFailReason{response_data->reason};
+        ::PostMessage(hwnd, WM_CHANNEL_CONNECTION_FAILURE, (WPARAM)reason, 0);
+    }
+}
+
 // CSelectChannelDlg 消息处理程序
 
 BOOL CSelectChannelDlg::OnInitDialog()
@@ -144,9 +214,10 @@ BOOL CSelectChannelDlg::DestroyWindow()
 void CSelectChannelDlg::OnBnClickedButtonJoin()
 {
     const int selected = m_lbChannel.GetCurSel();
-    YiZi::Client::Channel::NewCurrentChannel(std::move(m_umChannelMap.at(selected)));
+    YiZi::Client::Channel::NewCurrentChannel(m_umChannelMap.at(selected));
 
-    CDialogEx::OnOK();
+    m_tConnectChannelThread = std::thread{ConnectChannel, GetSafeHwnd()};
+    m_tConnectChannelThread.detach();
 }
 
 void CSelectChannelDlg::OnBnClickedRefresh()
@@ -154,6 +225,8 @@ void CSelectChannelDlg::OnBnClickedRefresh()
     // TODO: Close thread.
     if (m_tFetchChannelListThread.joinable())
         m_tFetchChannelListThread.join();
+    if (m_tConnectChannelThread.joinable())
+        m_tConnectChannelThread.join();
     m_lbChannel.ResetContent();
     m_umChannelMap.clear();
 
@@ -169,5 +242,29 @@ afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lPa
     m_umChannelMap.emplace(number, std::move(*pChannel));
     delete pChannel;
 
+    return 0;
+}
+
+afx_msg LRESULT CSelectChannelDlg::OnChannelConnectionSuccess(WPARAM wParam, LPARAM lParam)
+{
+    CDialogEx::OnOK();
+    return 0;
+}
+
+afx_msg LRESULT CSelectChannelDlg::OnChannelConnectionFailure(const WPARAM wParam, LPARAM lParam)
+{
+    YiZi::Client::Channel::DeleteCurrentChannel();
+    const auto* const reason = reinterpret_cast<YiZi::Packet::ChannelConnectionFailReason*>(wParam);
+    switch (*reason)
+    {
+    case YiZi::Packet::ChannelConnectionFailReason::ChannelNotExist:
+        {
+            AfxMessageBox(_T("所选频道不存在，请刷新频道列表后重试。"));
+            break;
+        }
+    default: AfxMessageBox(_T("出现未知错误，请刷新频道列表后重试。"));
+    }
+
+    delete reason;
     return 0;
 }

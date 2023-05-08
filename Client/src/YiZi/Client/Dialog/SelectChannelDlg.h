@@ -4,6 +4,8 @@
 #include <YiZi/Client/Core/Channel.h>
 
 #define WM_RECV_CHANNEL (WM_USER + 1)
+#define WM_CHANNEL_CONNECTION_SUCCESS (WM_RECV_CHANNEL + 1)
+#define WM_CHANNEL_CONNECTION_FAILURE (WM_CHANNEL_CONNECTION_SUCCESS + 1)
 
 // CSelectChannelDlg 对话框
 
@@ -31,17 +33,24 @@ private:
     static void HandleChannelListResponse(YiZi::Client::CSocket* socket, HWND hwnd);
     static void HandleChannelDetailResponse(YiZi::Client::CSocket* socket, HWND hwnd);
 
+    static void ConnectChannel(HWND hwnd);
+    static bool HandleChannelConnectionRequest(YiZi::Client::CSocket* socket);
+    static void HandleChannelConnectionResponse(YiZi::Client::CSocket* socket, HWND hwnd);
+
     BOOL OnInitDialog() override;
     BOOL DestroyWindow() override;
     afx_msg void OnBnClickedButtonJoin();
     afx_msg void OnBnClickedRefresh();
     afx_msg LRESULT OnRecvChannel(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnChannelConnectionSuccess(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnChannelConnectionFailure(WPARAM wParam, LPARAM lParam);
 
 private:
     // std::unordered_map<m_lbChannel中的序号，所对应的频道id>
     std::unordered_map<int, YiZi::Client::Channel> m_umChannelMap;
 
     std::thread m_tFetchChannelListThread{};
+    std::thread m_tConnectChannelThread{};
 
     CListBox m_lbChannel;
 };

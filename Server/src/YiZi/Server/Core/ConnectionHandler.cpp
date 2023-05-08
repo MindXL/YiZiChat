@@ -12,7 +12,8 @@
 namespace YiZi::Server
 {
     ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
-        : m_Client{client}, m_UserId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first}, m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
+        : m_Client{client}, m_UserId{0}, m_ChannelId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first},
+          m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
 
     ConnectionHandler::~ConnectionHandler()
     {
@@ -42,6 +43,7 @@ namespace YiZi::Server
         case Packet::PacketType::LoginRequest: return HandleLoginRequest();
         case Packet::PacketType::LogoutRequest: return HandleLogoutRequest();
         case Packet::PacketType::ChannelListRequest: return HandleChannelListRequest();
+        case Packet::PacketType::ChannelConnectionRequest: return HandleChannelConnectionRequest();
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         default: return false;
         }
@@ -118,6 +120,23 @@ namespace YiZi::Server
                     return false;
             }
         }
+        return true;
+    }
+
+    bool ConnectionHandler::HandleChannelConnectionRequest()
+    {
+        const bool isValid = ValidateChannel();
+
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
+        response_header->type = (uint8_t)Packet::PacketType::ChannelConnectionResponse;
+
+        auto* const response_data = reinterpret_cast<Packet::ChannelConnectionResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+        response_data->isValid = static_cast<uint8_t>(isValid);
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANNEL_CONNECTION_RESPONSE_LENGTH;
+        if (const bool success = m_Client->Send(m_ResBuffer, response_len);
+            !success)
+            return false;
         return true;
     }
 
@@ -258,5 +277,55 @@ namespace YiZi::Server
                               .client = m_Client
                           });
         return true;
+    }
+
+    bool ConnectionHandler::ValidateChannel()
+    {
+        const auto* const request_data = (Packet::ChannelConnectionRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const auto& cid = request_data->cid;
+
+        auto* const connectionMap = ChannelConnectionMap::Get();
+        if (auto connections = connectionMap->find(cid);
+            connections != connectionMap->cend())
+        {
+            // Establish connection.
+            connections->second.emplace(m_UserId);
+            m_ChannelId = cid;
+            return true;
+        }
+
+        // This means that channel id doesn't exist in memory. Check it up for once.
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tChannel = db->getTable(Database::Channel::name);
+        mysqlx::RowResult result = tChannel.select(
+            Database::Channel::Item::id
+        ).where("id=:id").bind("id", cid).execute();
+
+        auto* const response_data = reinterpret_cast<Packet::ChannelConnectionResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        switch (result.count())
+        {
+        case 0:
+            {
+                response_data->reason = (uint8_t)Packet::ChannelConnectionFailReason::ChannelNotExist;
+                return false;
+            }
+        case 1:
+            {
+                // This means it actually exists.
+                connectionMap->emplace(cid, std::unordered_set<uint32_t>{cid});
+                m_ChannelId = cid;
+                return true;
+            }
+#ifdef YZ_DEBUG
+        default:
+            {
+                // This means that multiple channel with same id exists in mysql.
+                // There might be something wrong in sql statements.
+                __asm("int3");
+                return false;
+            }
+#endif
+        }
     }
 }
