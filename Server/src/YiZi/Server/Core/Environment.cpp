@@ -13,10 +13,10 @@ namespace YiZi::Server
     void Environment::CheckEnvironment()
     {
         CheckDirectories();
-        CheckDatabaseConfigFile();
-
         if (!IsDirectoryReady())
             throw std::runtime_error{"[Environment]: Creating directories failed."};
+
+        CheckDatabaseConfigFile();
         if (!IsDatabaseConfigReady())
             throw std::runtime_error{"[Environment]: Configuring for database connection failed."};
     }
