@@ -175,11 +175,13 @@ namespace YiZi::Server
                 *((char16_t*)response_data->content + content.length()) = u'\0';
 
                 constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
-                for (const auto& [userId, userInfo] : *LoginMap::Get())
+                
+                const auto* const loginMap = LoginMap::Get();
+                for (const auto& userId : ChannelConnectionMap::Get()->at(m_ChannelId))
                 {
                     if (userId == m_UserId)
                         continue;
-                    userInfo.client->Send(m_ResBuffer, response_len);
+                    loginMap->at(userId).client->Send(m_ResBuffer, response_len);
                 }
             }
         };
