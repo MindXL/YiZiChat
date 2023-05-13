@@ -9,7 +9,7 @@ class CLoginDlg final : public CDialogEx
 
 public:
     explicit CLoginDlg(CWnd* pParent = nullptr); // 标准构造函数
-    ~CLoginDlg() override;
+    ~CLoginDlg() override = default;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME

@@ -15,8 +15,6 @@ CLoginDlg::CLoginDlg(CWnd* pParent /*=nullptr*/)
       m_csPhone(_T("")),
       m_csPassword(_T("")) {}
 
-CLoginDlg::~CLoginDlg() {}
-
 void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);

@@ -24,8 +24,8 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
-    [[nodiscard]] bool HandleTestConnectionRequest();
-    [[nodiscard]] bool HandleTestConnectionResponse();
+    [[nodiscard]] static bool HandleTestConnectionRequest();
+    [[nodiscard]] static bool HandleTestConnectionResponse();
 
     BOOL OnInitDialog() override;
     afx_msg void OnBnClickedOk();

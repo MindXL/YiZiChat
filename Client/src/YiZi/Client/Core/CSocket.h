@@ -30,7 +30,7 @@ namespace YiZi::Client
         void UnsetClosed() override;
 
     private:
-        bool m_IsAttached=true;
+        bool m_IsAttached = true;
 
         static std::atomic<bool> s_IsClosed;
         static std::atomic<bool> s_ThreadClosed;

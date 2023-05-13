@@ -15,7 +15,7 @@ class CSelectChannelDlg final : public CDialogEx
 
 public:
     explicit CSelectChannelDlg(CWnd* pParent = nullptr); // 标准构造函数
-    ~CSelectChannelDlg() override;
+    ~CSelectChannelDlg() override = default;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME

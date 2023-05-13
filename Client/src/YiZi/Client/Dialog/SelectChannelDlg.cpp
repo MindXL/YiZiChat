@@ -13,8 +13,6 @@ IMPLEMENT_DYNAMIC(CSelectChannelDlg, CDialogEx)
 CSelectChannelDlg::CSelectChannelDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_SELECT_CHANNEL_DIALOG, pParent) {}
 
-CSelectChannelDlg::~CSelectChannelDlg() {}
-
 void CSelectChannelDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);

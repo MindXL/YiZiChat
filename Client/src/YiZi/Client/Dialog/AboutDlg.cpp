@@ -13,8 +13,6 @@ IMPLEMENT_DYNAMIC(CAboutDlg, CDialogEx)
 CAboutDlg::CAboutDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_ABOUT_DIALOG, pParent) {}
 
-CAboutDlg::~CAboutDlg() {}
-
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);

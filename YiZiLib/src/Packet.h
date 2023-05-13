@@ -122,7 +122,7 @@ namespace YiZi::Packet
 
     static constexpr int CHAT_MESSAGE_RESPONSE_LENGTH = sizeof(ChatMessageResponse);
 
-    // macro "max" is defined in minwindef.h
+    // Macro "max" is defined in "minwindef.h" on client-end.
 #ifdef YZ_CLIENT
 #ifdef max
 #undef max

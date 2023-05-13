@@ -9,7 +9,7 @@ class CAboutDlg final : public CDialogEx
 
 public:
     explicit CAboutDlg(CWnd* pParent = nullptr); // 标准构造函数
-    ~CAboutDlg() override;
+    ~CAboutDlg() override = default;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME

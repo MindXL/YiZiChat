@@ -15,8 +15,6 @@ CUserInfoDlg::CUserInfoDlg(CWnd* pParent /*=nullptr*/)
       , m_csPhone(_T(""))
       , m_csJoinTime(_T("")) {}
 
-CUserInfoDlg::~CUserInfoDlg() {}
-
 void CUserInfoDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);

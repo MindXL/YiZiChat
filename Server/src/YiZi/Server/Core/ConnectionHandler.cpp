@@ -50,7 +50,7 @@ namespace YiZi::Server
         }
     }
 
-    bool ConnectionHandler::HandleTestConnectionRequest()
+    bool ConnectionHandler::HandleTestConnectionRequest() const
     {
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
         response_header->type = (uint8_t)Packet::PacketType::TestConnectionResponse;
@@ -89,7 +89,7 @@ namespace YiZi::Server
     {
         const auto* const channelMap = ChannelMap::Get();
 
-        const uint32_t count = (uint32_t)channelMap->size(); // TODO: Limit the number of channels.
+        const uint32_t count = channelMap->size(); // TODO: Limit the number of channels.
 
         auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
 

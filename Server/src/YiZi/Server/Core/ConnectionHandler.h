@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
 
 #include "SSocket.h"
 
@@ -20,7 +19,7 @@ namespace YiZi::Server
         void Run();
         [[nodiscard]] bool Dispatch();
 
-        [[nodiscard]] bool HandleTestConnectionRequest();
+        [[nodiscard]] bool HandleTestConnectionRequest() const;
         [[nodiscard]] bool HandleLoginRequest();
         [[nodiscard]] bool HandleLogoutRequest() const;
         [[nodiscard]] bool HandleChannelListRequest() const;

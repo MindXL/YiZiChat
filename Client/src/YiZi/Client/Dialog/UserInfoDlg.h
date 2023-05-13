@@ -9,7 +9,7 @@ class CUserInfoDlg final : public CDialogEx
 
 public:
     explicit CUserInfoDlg(CWnd* pParent = nullptr); // 标准构造函数
-    ~CUserInfoDlg() override;
+    ~CUserInfoDlg() override = default;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME
