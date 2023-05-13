@@ -25,10 +25,8 @@ void CTestConnectionDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CTestConnectionDlg, CDialogEx)
-    ON_BN_CLICKED(IDC_BUTTON_CONFIRM, &CTestConnectionDlg::OnBnClickedButtonConfirm)
+    ON_BN_CLICKED(IDOK, &CTestConnectionDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
-
-// CTestConnectionDlg 消息处理程序
 
 bool CTestConnectionDlg::HandleTestConnectionRequest()
 {
@@ -50,19 +48,37 @@ bool CTestConnectionDlg::HandleTestConnectionResponse()
     YiZi::Client::CSocket::Get()->Receive(resBuffer, response_len);
 
     const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
-    return response_header->type != (uint8_t)YiZi::Packet::PacketType::TestConnectionResponse;
+    return response_header->type == (uint8_t)YiZi::Packet::PacketType::TestConnectionResponse;
 }
 
-void CTestConnectionDlg::OnBnClickedButtonConfirm()
+BOOL CTestConnectionDlg::OnInitDialog()
+{
+    CDialogEx::OnInitDialog();
+
+    const auto* const environment = YiZi::Client::Environment::Get();
+    m_csAddress = environment->GetServerIp();
+    m_uiPort = environment->GetServerPort();
+    UpdateData(false);
+
+    return TRUE; // return TRUE unless you set the focus to a control
+    // 异常: OCX 属性页应返回 FALSE
+}
+
+// CTestConnectionDlg 消息处理程序
+
+void CTestConnectionDlg::OnBnClickedOk()
 {
     UpdateData(true);
 
     auto* const socket = YiZi::Client::CSocket::Get();
 
+    socket->Initialize();
     const bool success = socket->Connect(m_csAddress, m_uiPort);
 
     if (!success || !HandleTestConnectionRequest() || !HandleTestConnectionResponse())
     {
+        if (!socket->IsClosed())
+            socket->Close();
         AfxMessageBox(_T("连接失败。"));
         return;
     }
@@ -70,6 +86,8 @@ void CTestConnectionDlg::OnBnClickedButtonConfirm()
     // Ensure here though server-end will close socket.
     if (!socket->IsClosed())
         socket->Close();
+
+    YiZi::Client::Environment::Get()->CheckServerIpConfig(std::move(m_csAddress), m_uiPort);
 
     CDialogEx::OnOK();
 }

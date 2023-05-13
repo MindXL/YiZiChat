@@ -27,7 +27,8 @@ private:
     [[nodiscard]] bool HandleTestConnectionRequest();
     [[nodiscard]] bool HandleTestConnectionResponse();
 
-    afx_msg void OnBnClickedButtonConfirm();
+    BOOL OnInitDialog() override;
+    afx_msg void OnBnClickedOk();
 
 private:
     CString m_csAddress;

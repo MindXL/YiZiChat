@@ -75,13 +75,13 @@ BOOL CClientApp::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
-    auto* const g_Socket = YiZi::Client::CSocket::Get();
-    //g_Socket->Initialize();
-
+    // Socket will be initialized inside Main().
     // Socket may be initialized or closed multiple times inside Main().
     Main();
+
     // Make sure that socket is closed.
-    if (!g_Socket->IsClosed())
+    if (auto* const g_Socket = YiZi::Client::CSocket::Get();
+        !g_Socket->IsClosed())
         g_Socket->Close();
 
     // 删除上面创建的 shell 管理器。
@@ -101,6 +101,8 @@ BOOL CClientApp::InitInstance()
 
 void CClientApp::Main()
 {
+    YiZi::Client::Environment::Get()->CheckOuterEnvironment();
+
     CDialogEx* dlg = nullptr;
     INT_PTR nResponse = 0;
 

@@ -47,7 +47,7 @@ void CLoginDlg::OnBnClickedOk()
         return;
     }
 
-    CString message{ _T("登录成功。\n欢迎你：") };
+    CString message{_T("登录成功。\n欢迎你：")};
     message.Append(YiZi::Client::User::Get()->GetNickname());
     AfxMessageBox(message);
 
@@ -85,8 +85,9 @@ bool CLoginDlg::HandleLoginRequest()
              password.GetString(), password.GetLength());
     request_data->password[password.GetLength()] = '\0';
 
-    if (auto* const socket = YiZi::Client::CSocket::Get();
-        !socket->Connect(_T("127.0.0.1"), 5000) || !socket->Send(reqBuffer, request_len))
+    auto* const g_Socket = YiZi::Client::CSocket::Get();
+    g_Socket->Initialize();
+    if (!g_Socket->Connect(_T("127.0.0.1"), 5000) || !g_Socket->Send(reqBuffer, request_len))
     {
         AfxMessageBox(_T("连接服务器失败。请检查网络。"));
         return false;

@@ -10,6 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <fstream>
 
 #include <unordered_map>
 
@@ -19,5 +20,6 @@
 #include <YiZi/Client/Core/User.h>
 #include <YiZi/Client/Core/DialogBoxCommandID.h>
 #include <YiZi/Client/Core/Channel.h>
+#include <YiZi/Client/Core/Environment.h>
 
 #endif //PCH_H
