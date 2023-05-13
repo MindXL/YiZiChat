@@ -20,6 +20,7 @@ namespace YiZi::Server
         void Run();
         [[nodiscard]] bool Dispatch();
 
+        [[nodiscard]] bool HandleTestConnectionRequest();
         [[nodiscard]] bool HandleLoginRequest();
         [[nodiscard]] bool HandleLogoutRequest() const;
         [[nodiscard]] bool HandleChannelListRequest() const;

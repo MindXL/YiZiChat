@@ -5,6 +5,7 @@
 #include "../../../framework.h"
 #include "Client.h"
 
+#include <YiZi/Client/Dialog/TestConnectionDlg.h>
 #include <YiZi/Client/Dialog/LoginDlg.h>
 #include <YiZi/Client/Dialog/SelectChannelDlg.h>
 #include <YiZi/Client/Dialog/ChatDlg.h>
@@ -75,12 +76,8 @@ BOOL CClientApp::InitInstance()
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
     auto* const g_Socket = YiZi::Client::CSocket::Get();
-#ifdef YZ_DEBUG
-    // Socket can't be initialized before here.
-    if (!g_Socket->IsClosed())
-        __debugbreak();
-#endif
-    // Socket will be initialized inside Main().
+    //g_Socket->Initialize();
+
     // Socket may be initialized or closed multiple times inside Main().
     Main();
     // Make sure that socket is closed.
@@ -110,6 +107,18 @@ void CClientApp::Main()
     // Only break to close socket.
     while (true)
     {
+        dlg = new CTestConnectionDlg();
+        nResponse = dlg->DoModal();
+        delete dlg;
+        if (nResponse == IDCANCEL)
+            break;
+        if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+        {
+            TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+            TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+            break;
+        }
+
         dlg = new CLoginDlg();
         //m_pMainWnd = dlg;
         nResponse = dlg->DoModal();

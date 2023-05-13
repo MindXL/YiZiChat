@@ -13,6 +13,7 @@
 #define IDR_CHAT_MENU                   133
 #define IDD_USER_INFO_DIALOG            134
 #define IDD_SELECT_CHANNEL_DIALOG       136
+#define IDD_TEST_CONNECTION_DIALOG      138
 #define IDC_txtPhone                    1000
 #define IDC_txtPassword                 1002
 #define IDC_EDIT_TRANSCRIPT             1003
@@ -25,8 +26,13 @@
 #define IDC_EDIT_JOIN_TIME              1010
 #define IDC_BUTTON_JOIN                 1012
 #define IDC_lbChannel                   1013
-#define IDC_REFRESH                     1015
 #define IDC_BUTTON_REFRESH              1015
+#define IDC_BUTTON_CONFIRM              1016
+#define IDC_EDIT1                       1017
+#define IDC_EDIT_PORT                   1017
+#define IDC_IPADDRESS_IP                1019
+#define IDC_EDIT2                       1020
+#define IDC_EDIT_ADDRESS                1020
 #define ID_32771                        32771
 #define ID_USER_INFO                    32772
 #define ID_32773                        32773
@@ -38,9 +44,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32777
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -40,6 +40,7 @@ namespace YiZi::Server
         switch (const auto request_header = reinterpret_cast<Packet::PacketHeader*>(m_ReqBuffer);
             Packet::PacketType{request_header->type})
         {
+        case Packet::PacketType::TestConnectionRequest: return HandleTestConnectionRequest();
         case Packet::PacketType::LoginRequest: return HandleLoginRequest();
         case Packet::PacketType::LogoutRequest: return HandleLogoutRequest();
         case Packet::PacketType::ChannelListRequest: return HandleChannelListRequest();
@@ -47,6 +48,18 @@ namespace YiZi::Server
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         default: return false;
         }
+    }
+
+    bool ConnectionHandler::HandleTestConnectionRequest()
+    {
+        auto* const response_header = reinterpret_cast<Packet::PacketHeader*>(m_ResBuffer);
+        response_header->type = (uint8_t)Packet::PacketType::TestConnectionResponse;
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::TEST_CONNECTION_RESPONSE_LENGTH;
+        m_Client->Send(m_ResBuffer, response_len);
+
+        // Close socket.
+        return false;
     }
 
     bool ConnectionHandler::HandleLoginRequest()
@@ -175,7 +188,7 @@ namespace YiZi::Server
                 *((char16_t*)response_data->content + content.length()) = u'\0';
 
                 constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHAT_MESSAGE_RESPONSE_LENGTH;
-                
+
                 const auto* const loginMap = LoginMap::Get();
                 for (const auto& userId : ChannelConnectionMap::Get()->at(m_ChannelId))
                 {

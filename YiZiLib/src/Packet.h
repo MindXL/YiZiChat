@@ -8,6 +8,7 @@ namespace YiZi::Packet
 {
     enum class PacketType
     {
+        TestConnectionRequest, TestConnectionResponse,
         LoginRequest, LoginResponse,
         LogoutRequest,
         ChannelListRequest, ChannelListResponse,
@@ -22,6 +23,14 @@ namespace YiZi::Packet
     };
 
     static constexpr int PACKET_HEADER_LENGTH = sizeof(PacketHeader);
+
+    struct TestConnectionRequest {};
+
+    static constexpr int TEST_CONNECTION_REQUEST_LENGTH = 0;
+
+    struct TestConnectionResponse {};
+
+    static constexpr int TEST_CONNECTION_RESPONSE_LENGTH = 0;
 
     struct LoginRequest
     {

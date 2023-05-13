@@ -41,7 +41,6 @@ void CLoginDlg::OnBnClickedOk()
         __debugbreak();
 #endif
 
-    g_Socket->Initialize();
     if (!HandleLoginRequest() || !HandleLoginResponse())
     {
         g_Socket->Close();
