@@ -38,6 +38,7 @@ private:
     afx_msg void OnBnClickedButtonEmptyTranscript();
     afx_msg void OnUserInfo();
     afx_msg void OnAbout();
+    afx_msg void OnFont();
     afx_msg void OnLogout();
     afx_msg LRESULT OnRecvData(WPARAM wParam, LPARAM lParam);
     BOOL DestroyWindow() override;

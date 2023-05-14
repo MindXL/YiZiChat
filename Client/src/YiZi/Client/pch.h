@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include <unordered_map>
+#include <map>
 
 #include <YiZi/Client/Core/Buffer.h>
 #include <YiZi/Client/Core/InputControl.h>
@@ -21,5 +22,6 @@
 #include <YiZi/Client/Core/DialogBoxCommandID.h>
 #include <YiZi/Client/Core/Channel.h>
 #include <YiZi/Client/Core/Environment.h>
+#include <YiZi/Client/Core/Font.h>
 
 #endif //PCH_H

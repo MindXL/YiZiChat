@@ -8,6 +8,7 @@
 
 #include <YiZi/Client/Dialog/UserInfoDlg.h>
 #include <YiZi/Client/Dialog/AboutDlg.h>
+#include <YiZi/Client/Dialog/CheckFontDlg.h>
 
 // CChatDlg 对话框
 
@@ -33,15 +34,14 @@ BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
     ON_COMMAND(ID_ABOUT, &CChatDlg::OnAbout)
     ON_COMMAND(ID_LOGOUT, &CChatDlg::OnLogout)
     ON_MESSAGE(WM_RECVDATA, &CChatDlg::OnRecvData)
+    ON_COMMAND(ID_FONT, &CChatDlg::OnFont)
 END_MESSAGE_MAP()
 
 BOOL CChatDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
 
-    m_recTranscript.GetDefaultCharFormat(m_cfTranscriptContent);
-    m_cfTranscriptContent.dwMask |= CFM_SIZE;
-    m_cfTranscriptContent.yHeight *= 1.5;
+    m_recTranscript.SetDefaultCharFormat(*YiZi::Client::TranscriptDefaultCF::Get());
 
     m_recTranscript.SetBackgroundColor(false, RGB(240, 240, 240));
 
@@ -138,7 +138,7 @@ void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const 
     header.Format(_T("%s    %s\r\n"), nickname, time.Format(_T("%T")));
     m_recTranscript.ReplaceSel(header);
 
-    m_recTranscript.SetSelectionCharFormat(m_cfTranscriptContent);
+    m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptContentCF::Get());
     m_recTranscript.ReplaceSel(message);
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
@@ -185,6 +185,16 @@ void CChatDlg::OnUserInfo()
 void CChatDlg::OnAbout()
 {
     CAboutDlg{}.DoModal();
+}
+
+void CChatDlg::OnFont()
+{
+    // TODO: Check if chat message can still be received while dlg is open.
+    CCheckFontDlg{}.DoModal();
+    // TODO: This will set all char format to this default one, including transcript content. Solve this.
+    m_recTranscript.SetDefaultCharFormat(*YiZi::Client::TranscriptDefaultCF::Get());
+
+    SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
 void CChatDlg::OnLogout()

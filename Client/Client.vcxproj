@@ -189,9 +189,11 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\YiZi\Client\Dialog\CheckFontDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\YiZi\Client\Core\Channel.h" />
     <ClInclude Include="src\YiZi\Client\Core\Environment.h" />
+    <ClInclude Include="src\YiZi\Client\Core\Font.h" />
     <ClInclude Include="src\YiZi\Client\Dialog\SelectChannelDlg.h" />
     <ClInclude Include="src\YiZi\Client\Core\DialogBoxCommandID.h" />
     <ClInclude Include="src\YiZi\Client\Dialog\AboutDlg.h" />
@@ -209,8 +211,10 @@
     <ClInclude Include="src\YiZi\Client\Dialog\TestConnectionDlg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\YiZi\Client\Dialog\CheckFontDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Core\Channel.cpp" />
     <ClCompile Include="src\YiZi\Client\Core\Environment.cpp" />
+    <ClCompile Include="src\YiZi\Client\Core\Font.cpp" />
     <ClCompile Include="src\YiZi\Client\Dialog\SelectChannelDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Dialog\AboutDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Core\User.cpp" />
