@@ -30,7 +30,7 @@ BOOL CCheckFontDlg::OnInitDialog()
     constexpr LONG defaultFontSize = 16;
     int defaultIndex = 0;
 
-    for (const auto& [fontSize, fontSizeStr] : *YiZi::Client::FontSizeVector::Get())
+    for (const auto& [fontSize, fontSizeStr] : *YiZi::Client::FontSizeMap::Get())
     {
         m_cbFontSize.AddString(fontSizeStr);
 

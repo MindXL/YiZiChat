@@ -3,7 +3,7 @@
 
 namespace YiZi::Client
 {
-    const FontSizeVector* const FontSizeVector::s_FontSizeMap = new FontSizeVector{
+    const FontSizeMap* const FontSizeMap::s_FontSizeMap = new FontSizeMap{
         {8, _T("8")},
         {9, _T("9")},
         {10, _T("10")},

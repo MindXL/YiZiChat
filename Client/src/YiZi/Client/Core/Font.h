@@ -4,13 +4,13 @@
 
 namespace YiZi::Client
 {
-    class FontSizeVector : public std::map<long, const wchar_t*>
+    class FontSizeMap : public std::map<long, const wchar_t*>
     {
     public:
-        static const FontSizeVector* Get() { return s_FontSizeMap; }
+        static const FontSizeMap* Get() { return s_FontSizeMap; }
 
     private:
-        static const FontSizeVector* const s_FontSizeMap;
+        static const FontSizeMap* const s_FontSizeMap;
 
     private:
         using std::map<long, const wchar_t*>::map;
