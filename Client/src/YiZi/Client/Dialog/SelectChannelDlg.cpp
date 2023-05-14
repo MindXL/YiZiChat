@@ -20,7 +20,7 @@ void CSelectChannelDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialogEx)
-    ON_BN_CLICKED(IDC_BUTTON_JOIN, &CSelectChannelDlg::OnBnClickedButtonJoin)
+    ON_BN_CLICKED(IDOK, &CSelectChannelDlg::OnBnClickedOk)
     ON_MESSAGE(WM_RECV_CHANNEL, &CSelectChannelDlg::OnRecvChannel)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CSelectChannelDlg::OnBnClickedRefresh)
     ON_MESSAGE(WM_CHANNEL_CONNECTION_SUCCESS, &CSelectChannelDlg::OnChannelConnectionSuccess)
@@ -209,13 +209,15 @@ BOOL CSelectChannelDlg::DestroyWindow()
     return CDialogEx::DestroyWindow();
 }
 
-void CSelectChannelDlg::OnBnClickedButtonJoin()
+void CSelectChannelDlg::OnBnClickedOk()
 {
     const int selected = m_lbChannel.GetCurSel();
     YiZi::Client::Channel::NewCurrentChannel(m_umChannelMap.at(selected));
 
     m_tConnectChannelThread = std::thread{ConnectChannel, GetSafeHwnd()};
     m_tConnectChannelThread.detach();
+
+    CDialogEx::OnOK();
 }
 
 void CSelectChannelDlg::OnBnClickedRefresh()
