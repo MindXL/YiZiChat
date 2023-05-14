@@ -31,8 +31,9 @@
 #define IDC_EDIT1                       1017
 #define IDC_EDIT_PORT                   1017
 #define IDC_IPADDRESS_IP                1019
-#define IDC_EDIT2                       1020
 #define IDC_EDIT_ADDRESS                1020
+#define IDC_RICHEDIT22                  1022
+#define IDC_RICHEDIT2_TRANSCRIPT        1022
 #define ID_32771                        32771
 #define ID_USER_INFO                    32772
 #define ID_32773                        32773
@@ -46,7 +47,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32777
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

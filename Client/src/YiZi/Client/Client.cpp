@@ -75,6 +75,9 @@ BOOL CClientApp::InitInstance()
     // 例如修改为公司或组织名
     SetRegistryKey(_T(R"(由“心灵”（"Mind"）开发的易字聊天（局域网聊天系统）)"));
 
+    // 调用 AfxInitRichEdit2() 以初始化 richedit2 库。"
+    AfxInitRichEdit2();
+
     // Socket will be initialized inside Main().
     // Socket may be initialized or closed multiple times inside Main().
     Main();

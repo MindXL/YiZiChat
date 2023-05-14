@@ -51,9 +51,12 @@ private:
 
     std::thread m_tListenChatMessageThread{};
 
-    CString m_csTranscript;
+    CRichEditCtrl m_recTranscript;
     CString m_csMessage;
 
-    std::mutex m_mCSTranscript;
+    std::mutex m_mTranscript;
     const CString& m_csLocalUserNickname;
+    bool m_bIsFirstLine = true;
+
+    CHARFORMAT2 m_cfTranscriptContent{};
 };

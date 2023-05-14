@@ -15,16 +15,15 @@ IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
 
 CChatDlg::CChatDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_CHAT_DIALOG, pParent)
-      , m_csTranscript(_T(""))
       , m_csMessage(_T(""))
       , m_csLocalUserNickname{YiZi::Client::User::Get()->GetNickname()} {}
 
 void CChatDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
-    DDX_Text(pDX, IDC_EDIT_TRANSCRIPT, m_csTranscript);
     DDX_Text(pDX, IDC_EDIT_MESSAGE, m_csMessage);
     DDV_MaxChars(pDX, m_csMessage, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH);
+    DDX_Control(pDX, IDC_RICHEDIT2_TRANSCRIPT, m_recTranscript);
 }
 
 BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
@@ -39,6 +38,12 @@ END_MESSAGE_MAP()
 BOOL CChatDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
+
+    m_recTranscript.GetDefaultCharFormat(m_cfTranscriptContent);
+    m_cfTranscriptContent.dwMask |= CFM_SIZE;
+    m_cfTranscriptContent.yHeight *= 1.5;
+
+    m_recTranscript.SetBackgroundColor(false, RGB(240, 240, 240));
 
     auto* const request_header = (YiZi::Packet::PacketHeader*)m_pChatRequestBuffer;
     request_header->type = (uint8_t)YiZi::Packet::PacketType::ChatMessageRequest;
@@ -118,9 +123,25 @@ void CChatDlg::WriteTranscript(const CString& message)
 
 void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const CString& nickname)
 {
-    std::lock_guard lock{m_mCSTranscript};
-    m_csTranscript.AppendFormat(_T("%s <%s>: %s\r\n"), time.Format(_T("%T")), nickname, message);
-    UpdateData(false);
+    std::lock_guard lock{m_mTranscript};
+
+    // TODO: Limit the size of transcript recorded.
+
+    m_recTranscript.SetSel(LONG_MAX, LONG_MAX);
+
+    if (!m_bIsFirstLine)
+        m_recTranscript.ReplaceSel(_T("\r\n\r\n"));
+    else
+        m_bIsFirstLine = false;
+
+    CString header;
+    header.Format(_T("%s    %s\r\n"), nickname, time.Format(_T("%T")));
+    m_recTranscript.ReplaceSel(header);
+
+    m_recTranscript.SetSelectionCharFormat(m_cfTranscriptContent);
+    m_recTranscript.ReplaceSel(message);
+
+    SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
 // CChatDlg 消息处理程序
@@ -146,9 +167,14 @@ void CChatDlg::OnBnClickedButtonSend()
 
 void CChatDlg::OnBnClickedButtonEmptyTranscript()
 {
-    std::lock_guard lock{m_mCSTranscript};
-    m_csTranscript.Empty();
-    UpdateData(false);
+    std::lock_guard lock{m_mTranscript};
+
+    m_recTranscript.SetSel(0, -1);
+    m_recTranscript.SetReadOnly(false);
+    m_recTranscript.Clear();
+    m_recTranscript.SetReadOnly(true);
+
+    m_bIsFirstLine = true;
 }
 
 void CChatDlg::OnUserInfo()
