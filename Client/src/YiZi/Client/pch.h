@@ -15,6 +15,8 @@
 
 #include <unordered_map>
 #include <map>
+#include <tuple>
+#include <list>
 
 #include <YiZi/Client/Core/Buffer.h>
 #include <YiZi/Client/Core/InputControl.h>

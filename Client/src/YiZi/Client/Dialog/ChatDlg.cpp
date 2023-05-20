@@ -75,9 +75,13 @@ void CChatDlg::HandleChatMessageResponse()
 {
     const auto* const response_data = (YiZi::Packet::ChatMessageResponse*)(m_pChatResponseBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
 
-    WriteTranscript((const wchar_t*)response_data->content,
-                    CTime{static_cast<__time64_t>(response_data->timestamp / 1000)},
-                    (const wchar_t*)response_data->nickname);
+    auto content{(const wchar_t*)response_data->content};
+    CTime sendTime{static_cast<__time64_t>(response_data->timestamp / 1000)};
+    auto nickname{(const wchar_t*)response_data->nickname};
+
+    // TODO: Store and write can be run in parallel.
+    StoreTranscript(content, sendTime, nickname);
+    WriteTranscript(content, sendTime, nickname, true);
     UpdateData(false);
 }
 
@@ -116,15 +120,18 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
     delete socket;
 }
 
-void CChatDlg::WriteTranscript(const CString& message)
+void CChatDlg::StoreTranscript(const CString& message, const CTime& time, const CString& nickname)
 {
-    WriteTranscript(message, CTime::GetCurrentTime(), m_csLocalUserNickname);
+    std::lock_guard lock{m_mLists};
+
+    m_lTranscriptItem.emplace_back(message, time, nickname);
 }
 
-void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const CString& nickname)
+void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const CString& nickname, const bool toLock)
 {
-    std::unique_lock lock{m_mTranscript};
-    lock.lock();
+    std::unique_lock lock{m_mTranscript, std::defer_lock};
+    if (toLock)
+        lock.lock();
 
     // TODO: Limit the size of transcript recorded.
 
@@ -142,9 +149,35 @@ void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const 
     m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptContentCF::Get());
     m_recTranscript.ReplaceSel(message);
 
-    lock.unlock();
+    if (toLock)
+        lock.unlock();
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
+}
+
+void CChatDlg::RewriteAllTranscript()
+{
+    std::lock_guard lock{m_mTranscript};
+    ClearTranscript(false);
+    for (const auto& [content,time,nickname] : m_lTranscriptItem)
+        WriteTranscript(content, time, nickname, false);
+}
+
+void CChatDlg::ClearTranscript(const bool toLock)
+{
+    std::unique_lock lock{m_mTranscript, std::defer_lock};
+    if (toLock)
+        lock.lock();
+
+    m_recTranscript.SetSel(0, -1);
+    m_recTranscript.SetReadOnly(false);
+    m_recTranscript.Clear();
+    m_recTranscript.SetReadOnly(true);
+
+    m_bIsFirstLine = true;
+
+    if (toLock)
+        lock.unlock();
 }
 
 // CChatDlg 消息处理程序
@@ -163,21 +196,20 @@ void CChatDlg::OnBnClickedButtonSend()
         return;
     }
 
-    WriteTranscript(m_csMessage);
+    // TODO: Store message in a map. Use CTime to be map's key.
+    // When multiple messages are stored, make sure their sequences of appearance in the windows matches their own times.
+    const CTime current{CTime::GetCurrentTime()};
+
+    // TODO: Store and write can be run in parallel.
+    StoreTranscript(m_csMessage, current, m_csLocalUserNickname);
+    WriteTranscript(m_csMessage, current, m_csLocalUserNickname, true);
     m_csMessage.Empty();
     UpdateData(false);
 }
 
 void CChatDlg::OnBnClickedButtonEmptyTranscript()
 {
-    std::lock_guard lock{m_mTranscript};
-
-    m_recTranscript.SetSel(0, -1);
-    m_recTranscript.SetReadOnly(false);
-    m_recTranscript.Clear();
-    m_recTranscript.SetReadOnly(true);
-
-    m_bIsFirstLine = true;
+    ClearTranscript(true);
 }
 
 void CChatDlg::OnUserInfo()
@@ -194,8 +226,9 @@ void CChatDlg::OnFont()
 {
     // TODO: Check if chat message can still be received while dlg is open.
     CCheckFontDlg{}.DoModal();
-    // TODO: This will set all char format to this default one, including transcript content. Solve this.
+
     m_recTranscript.SetDefaultCharFormat(*YiZi::Client::TranscriptDefaultCF::Get());
+    RewriteAllTranscript();
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
 }

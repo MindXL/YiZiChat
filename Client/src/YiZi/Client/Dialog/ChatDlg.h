@@ -31,8 +31,12 @@ private:
 
     static void ListenChatMessage(HWND hWnd);
 
-    void WriteTranscript(const CString& message);
-    void WriteTranscript(const CString& message, const CTime& time, const CString& nickname);
+    void StoreTranscript(const CString& message, const CTime& time, const CString& nickname);
+    // "toLock" is used to control whether lock inside the function or lock outside.
+    void WriteTranscript(const CString& message, const CTime& time, const CString& nickname, bool toLock);
+
+    void RewriteAllTranscript();
+    void ClearTranscript(bool toLock);
 
     afx_msg void OnBnClickedButtonSend();
     afx_msg void OnBnClickedButtonEmptyTranscript();
@@ -54,6 +58,10 @@ private:
 
     CRichEditCtrl m_recTranscript;
     CString m_csMessage;
+
+    // TODO: Stop storing so many strings.
+    std::mutex m_mLists;
+    std::list<std::tuple<CString, CTime, CString>> m_lTranscriptItem;
 
     std::mutex m_mTranscript;
     const CString& m_csLocalUserNickname;
