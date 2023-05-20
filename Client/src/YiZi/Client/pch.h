@@ -11,6 +11,7 @@
 #include <mutex>
 #include <atomic>
 #include <fstream>
+#include <sstream>
 
 #include <unordered_map>
 #include <map>

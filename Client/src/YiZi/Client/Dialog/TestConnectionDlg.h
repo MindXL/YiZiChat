@@ -32,5 +32,5 @@ private:
 
 private:
     CString m_csAddress;
-    YiZi::port_t m_uiPort;
+    CString m_csPort;
 };

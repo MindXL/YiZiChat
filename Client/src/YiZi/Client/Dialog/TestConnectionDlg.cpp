@@ -13,7 +13,7 @@ IMPLEMENT_DYNAMIC(CTestConnectionDlg, CDialogEx)
 CTestConnectionDlg::CTestConnectionDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_TEST_CONNECTION_DIALOG, pParent)
       , m_csAddress(_T(""))
-      , m_uiPort(0) {}
+      , m_csPort(_T("")) {}
 
 CTestConnectionDlg::~CTestConnectionDlg() {}
 
@@ -21,7 +21,7 @@ void CTestConnectionDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
     DDX_Text(pDX, IDC_EDIT_ADDRESS, m_csAddress);
-    DDX_Text(pDX, IDC_EDIT_PORT, m_uiPort);
+    DDX_Text(pDX, IDC_EDIT_PORT, m_csPort);
 }
 
 BEGIN_MESSAGE_MAP(CTestConnectionDlg, CDialogEx)
@@ -57,7 +57,9 @@ BOOL CTestConnectionDlg::OnInitDialog()
 
     const auto* const environment = YiZi::Client::Environment::Get();
     m_csAddress = environment->GetServerIp();
-    m_uiPort = environment->GetServerPort();
+    if (const YiZi::port_t port = environment->GetServerPort();
+        port != YiZi::port_t{})
+        m_csPort.AppendFormat(_T("%d"), port);
     UpdateData(false);
 
     return TRUE; // return TRUE unless you set the focus to a control
@@ -70,10 +72,15 @@ void CTestConnectionDlg::OnBnClickedOk()
 {
     UpdateData(true);
 
+    YiZi::port_t port{};
+    std::stringstream ss;
+    ss << CStringA{m_csPort}.GetString();
+    ss >> port;
+
     auto* const socket = YiZi::Client::CSocket::Get();
 
     socket->Initialize();
-    const bool success = socket->Connect(m_csAddress, m_uiPort);
+    const bool success = socket->Connect(m_csAddress, port);
 
     if (!success || !HandleTestConnectionRequest() || !HandleTestConnectionResponse())
     {
@@ -87,7 +94,7 @@ void CTestConnectionDlg::OnBnClickedOk()
     if (!socket->IsClosed())
         socket->Close();
 
-    YiZi::Client::Environment::Get()->CheckServerIpConfig(std::move(m_csAddress), m_uiPort);
+    YiZi::Client::Environment::Get()->CheckServerIpConfig(std::move(m_csAddress), port);
 
     CDialogEx::OnOK();
 }
