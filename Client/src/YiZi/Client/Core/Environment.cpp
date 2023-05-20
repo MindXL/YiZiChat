@@ -57,11 +57,34 @@ namespace YiZi::Client
         else
         {
             std::ifstream iConfigFile{m_ServerIpConfigFilePath};
-            // TODO: Prepare for corrupted config file.
+
             std::string serverIpBuffer;
-            iConfigFile >> serverIpBuffer >> m_ServerPort;
-            m_ServerIp = serverIpBuffer.c_str();
+
+            bool success = true;
+            for (int i = 0; i < 2; ++i)
+            {
+                switch (i)
+                {
+                case 0: iConfigFile >> serverIpBuffer;
+                    break;
+                case 1: iConfigFile >> m_ServerPort;
+                    break;
+#ifdef YZ_DEBUG
+                // This means that maybe new item was added but not handled.
+                default: __debugbreak();
+#endif
+                }
+                if (iConfigFile.fail())
+                {
+                    success = false;
+                    break;
+                }
+            }
             iConfigFile.close();
+            if (success)
+                m_ServerIp = serverIpBuffer.c_str();
+            else
+                std::ofstream{m_ServerIpConfigFilePath}.close();
         }
 
         m_IsServerIpConfigFileReady = true;
