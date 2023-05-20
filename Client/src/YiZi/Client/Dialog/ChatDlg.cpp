@@ -123,7 +123,8 @@ void CChatDlg::WriteTranscript(const CString& message)
 
 void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const CString& nickname)
 {
-    std::lock_guard lock{m_mTranscript};
+    std::unique_lock lock{m_mTranscript};
+    lock.lock();
 
     // TODO: Limit the size of transcript recorded.
 
@@ -140,6 +141,8 @@ void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const 
 
     m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptContentCF::Get());
     m_recTranscript.ReplaceSel(message);
+
+    lock.unlock();
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);
 }
