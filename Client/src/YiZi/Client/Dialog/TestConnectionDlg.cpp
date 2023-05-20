@@ -71,6 +71,16 @@ BOOL CTestConnectionDlg::OnInitDialog()
 void CTestConnectionDlg::OnBnClickedOk()
 {
     UpdateData(true);
+    if (!YiZi::Client::InputControl::Server_Address(m_csAddress))
+    {
+        GetDlgItem(IDC_EDIT_ADDRESS)->GetFocus();
+        return;
+    }
+    if (!YiZi::Client::InputControl::Server_Port(m_csPort))
+    {
+        GetDlgItem(IDC_EDIT_PORT)->GetFocus();
+        return;
+    }
 
     YiZi::port_t port{};
     std::stringstream ss;

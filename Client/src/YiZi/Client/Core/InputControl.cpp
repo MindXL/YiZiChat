@@ -4,9 +4,31 @@
 
 namespace YiZi::Client
 {
+    bool InputControl::Server_Address(const CString& ip)
+    {
+        const auto length = ip.GetLength();
+        if (length == 0)
+        {
+            AfxMessageBox(_T("请填入服务器地址"));
+            return false;
+        }
+        return true;
+    }
+
+    bool InputControl::Server_Port(const CString& port)
+    {
+        const auto length = port.GetLength();
+        if (length == 0)
+        {
+            AfxMessageBox(_T("请填入服务器端口号"));
+            return false;
+        }
+        return true;
+    }
+
     bool InputControl::User_Phone(const CStringA& phone)
     {
-        const int length = phone.GetLength();
+        const auto length = phone.GetLength();
         if (length == 0)
         {
             AfxMessageBox(_T("请填入手机号"));
@@ -27,7 +49,7 @@ namespace YiZi::Client
 
     bool InputControl::User_Password(const CStringA& password)
     {
-        const int length = password.GetLength();
+        const auto length = password.GetLength();
         if (length == 0)
         {
             AfxMessageBox(_T("请填入密码"));
@@ -55,7 +77,7 @@ namespace YiZi::Client
 
     bool InputControl::User_Nickname(const CString& nickname)
     {
-        const int length = nickname.GetLength();
+        const auto length = nickname.GetLength();
         if (length == 0)
         {
             AfxMessageBox(_T("请填入昵称"));
