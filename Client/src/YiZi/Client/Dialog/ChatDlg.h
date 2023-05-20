@@ -25,7 +25,7 @@ protected:
 private:
     BOOL OnInitDialog() override;
 
-    bool HandleChatMessageRequest() const;
+    [[nodiscard]] bool HandleChatMessageRequest() const;
     void HandleChatMessageResponse();
     static void HandleLogoutRequest();
 
