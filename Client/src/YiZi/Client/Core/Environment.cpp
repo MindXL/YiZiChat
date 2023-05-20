@@ -28,16 +28,23 @@ namespace YiZi::Client
         oConfigFile.close();
     }
 
-    void Environment::CheckDirectories()
+    Environment::Environment()
     {
         char* buffer = nullptr;
         size_t bufferSize{};
         _dupenv_s(&buffer, &bufferSize, "APPDATA");
+
         m_RootDirectoryPath = buffer;
+        delete[] buffer;
 
         m_MainDirectoryPath = m_RootDirectoryPath / s_MainDirectoryName;
         m_SubDirectoryPath = m_MainDirectoryPath / s_SubDirectoryName;
 
+        m_ServerIpConfigFilePath = m_SubDirectoryPath / s_ServerIpConfigFileName;
+    }
+
+    void Environment::CheckDirectories()
+    {
         if (!std::filesystem::exists(m_SubDirectoryPath))
             std::filesystem::create_directories(m_SubDirectoryPath);
 
@@ -46,8 +53,6 @@ namespace YiZi::Client
 
     void Environment::CheckServerIpConfigFile()
     {
-        m_ServerIpConfigFilePath = m_SubDirectoryPath / s_ServerIpConfigFileName;
-
         if (!std::filesystem::exists(m_ServerIpConfigFilePath))
         {
             // Just check file here.

@@ -23,6 +23,8 @@ namespace YiZi::Client
         void CheckServerIpConfig(CString serverIp, port_t serverPort);
 
     private:
+        Environment();
+
         void CheckDirectories();
         void CheckServerIpConfigFile(); // Just check the file. Does not check configuration.
 
