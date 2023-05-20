@@ -62,7 +62,7 @@ bool CChatDlg::HandleChatMessageRequest() const
     request_data->id = YiZi::Client::User::Get()->GetId();
 
     const int message_len = m_csMessage.GetLength();
-    memcpy_s(request_data->content, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH,
+    memcpy_s(request_data->content, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH * sizeof(wchar_t),
              m_csMessage.GetString(), message_len * sizeof(wchar_t));
     *((char16_t*)request_data->content + message_len) = u'\0';
 
