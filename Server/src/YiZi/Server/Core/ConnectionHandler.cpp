@@ -17,8 +17,8 @@ namespace YiZi::Server
 
     ConnectionHandler::~ConnectionHandler()
     {
-        BufferManager::Get()->Return(m_ReqBuffer);
         m_Client->Close();
+        BufferManager::Get()->Return(m_ReqBuffer);
         delete m_Client;
     }
 
