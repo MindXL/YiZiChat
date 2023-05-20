@@ -242,6 +242,9 @@ afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lPa
     m_umChannelMap.emplace(number, std::move(*pChannel));
     delete pChannel;
 
+    if (m_umChannelMap.size() == 1)
+        m_lbChannel.SetCurSel(0);
+
     return 0;
 }
 
