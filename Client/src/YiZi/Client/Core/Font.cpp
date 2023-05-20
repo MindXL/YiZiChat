@@ -28,6 +28,38 @@ namespace YiZi::Client
 
     TranscriptContentCF* TranscriptContentCF::s_TranscriptContentCF = new TranscriptContentCF{};
 
+    // Load font faces.
+    // Save this.
+    /*
+    FontFaceVector::FontFaceVector()
+    {
+        const HDC hDC = GetDC(nullptr);
+
+        LOGFONT lf{};
+        lf.lfCharSet = DEFAULT_CHARSET;
+        lf.lfFaceName[0] = _T('\0');
+
+        auto proc = [](CONST LOGFONTW* lpelfe, CONST TEXTMETRICW* lpntme, DWORD FontType, const LPARAM lParam)-> int
+        {
+            if (const auto& [hashtable, vector] = *reinterpret_cast<std::pair<std::set<CString>&, FontFaceVector*>*>(lParam);
+                lpelfe->lfFaceName[0] != _T('@') && !hashtable.contains(lpelfe->lfFaceName))
+            {
+                vector->emplace_back(lpelfe->lfFaceName);
+                hashtable.emplace(lpelfe->lfFaceName);
+            }
+
+            return 1;
+        };
+
+        std::set<CString> hashtable;
+        std::pair<decltype(hashtable)&, FontFaceVector*> lParam{hashtable, this};
+
+        EnumFontFamiliesEx(hDC, &lf, proc, (LPARAM)&lParam, 0);
+
+        ReleaseDC(nullptr, hDC);
+    }
+    */
+
     DefaultCF::DefaultCF()
         : CHARFORMAT2()
     {
@@ -35,7 +67,7 @@ namespace YiZi::Client
         dwMask = 0xfeffffff;
         dwEffects = 0x44000000;
         yHeight = 160;
-        wcscpy_s(szFaceName, _T("MS Shell Dlg 2"));
+        wcscpy_s(szFaceName, s_DefaultFontFace);
         wWeight = 400;
         lcid = 0x00000804;
         bUnderlineType = CFU_UNDERLINE;

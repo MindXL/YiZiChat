@@ -35,6 +35,7 @@
 #define IDC_EDIT_ADDRESS                1020
 #define IDC_RICHEDIT2_TRANSCRIPT        1022
 #define IDC_COMBO_FONT_SIZE             1025
+#define IDC_MFCFONTCOMBO_FONT_FACE      1026
 #define ID_32771                        32771
 #define ID_USER_INFO                    32772
 #define ID_32773                        32773
@@ -48,9 +49,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        142
+#define _APS_NEXT_RESOURCE_VALUE        143
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1026
+#define _APS_NEXT_CONTROL_VALUE         1027
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

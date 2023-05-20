@@ -4,7 +4,9 @@
 
 namespace YiZi::Client
 {
-    class FontSizeMap : public std::map<long, const wchar_t*>
+    constexpr const wchar_t* const s_DefaultFontFace = _T("ÐÂËÎÌå");
+
+    class FontSizeMap final : public std::map<long, const wchar_t*>
     {
     public:
         static const FontSizeMap* Get() { return s_FontSizeMap; }
@@ -21,6 +23,7 @@ namespace YiZi::Client
     public:
         static DefaultCF* Get() { return s_DefaultCF; }
 
+        void SetFontFace(const wchar_t* fontFace) { wcscpy_s(szFaceName, fontFace); }
         void SetFontHeight(const decltype(yHeight) fontHeight) { yHeight = fontHeight; }
 
         explicit operator CHARFORMAT2() const { return *this; }

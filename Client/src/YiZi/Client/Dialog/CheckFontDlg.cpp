@@ -16,6 +16,7 @@ CCheckFontDlg::CCheckFontDlg(CWnd* pParent /*=nullptr*/)
 void CCheckFontDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_MFCFONTCOMBO_FONT_FACE, m_fcbFontFace);
     DDX_Control(pDX, IDC_COMBO_FONT_SIZE, m_cbFontSize);
 }
 
@@ -27,6 +28,8 @@ BOOL CCheckFontDlg::OnInitDialog()
     CDialogEx::OnInitDialog();
 
     // TODO: Read from file.
+    m_fcbFontFace.SelectFont(YiZi::Client::DefaultCF::Get()->szFaceName);
+
     constexpr LONG defaultFontSize = 16;
     int defaultIndex = 0;
 
@@ -48,10 +51,21 @@ BOOL CCheckFontDlg::OnInitDialog()
 
 BOOL CCheckFontDlg::DestroyWindow()
 {
+    auto* const defaultCF = YiZi::Client::TranscriptDefaultCF::Get();
+    auto* const contentCF = YiZi::Client::TranscriptContentCF::Get();
+
+    // If fontInfo equals nullptr, that means there's a bug in MFC.
+    if (const auto* const fontInfo = m_fcbFontFace.GetSelFont();
+        fontInfo != nullptr)
+    {
+        defaultCF->SetFontFace(fontInfo->m_strName);
+        contentCF->SetFontFace(fontInfo->m_strName);
+    }
+
     const LONG fontSize = *static_cast<LONG*>(m_cbFontSize.GetItemDataPtr(m_cbFontSize.GetCurSel()));
     const LONG fontHeight = fontSize * 10;
-    YiZi::Client::TranscriptDefaultCF::Get()->SetFontHeight(fontHeight);
-    YiZi::Client::TranscriptContentCF::Get()->SetFontHeight(fontHeight * 1.5);
+    defaultCF->SetFontHeight(fontHeight);
+    contentCF->SetFontHeight(fontHeight * 1.5);
 
     return CDialogEx::DestroyWindow();
 }

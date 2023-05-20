@@ -26,5 +26,6 @@ private:
     BOOL DestroyWindow() override;
 
 private:
+    CMFCFontComboBox m_fcbFontFace;
     CComboBox m_cbFontSize;
 };
