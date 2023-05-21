@@ -51,20 +51,23 @@ BOOL CCheckFontDlg::OnInitDialog()
 
 BOOL CCheckFontDlg::DestroyWindow()
 {
-    auto* const defaultCF = YiZi::Client::TranscriptDefaultCF::Get();
+    auto* const nicknameCF = YiZi::Client::TranscriptNicknameCF::Get();
+    auto* const timeCF = YiZi::Client::TranscriptTimeCF::Get();
     auto* const contentCF = YiZi::Client::TranscriptContentCF::Get();
 
     // If fontInfo equals nullptr, that means there's a bug in MFC.
     if (const auto* const fontInfo = m_fcbFontFace.GetSelFont();
         fontInfo != nullptr)
     {
-        defaultCF->SetFontFace(fontInfo->m_strName);
+        nicknameCF->SetFontFace(fontInfo->m_strName);
+        timeCF->SetFontFace(fontInfo->m_strName);
         contentCF->SetFontFace(fontInfo->m_strName);
     }
 
     const LONG fontSize = *static_cast<LONG*>(m_cbFontSize.GetItemDataPtr(m_cbFontSize.GetCurSel()));
     const LONG fontHeight = fontSize * 10;
-    defaultCF->SetFontHeight(fontHeight);
+    nicknameCF->SetFontHeight(fontHeight);
+    timeCF->SetFontHeight(fontHeight * 0.8);
     contentCF->SetFontHeight(fontHeight * 1.5);
 
     return CDialogEx::DestroyWindow();

@@ -41,7 +41,7 @@ BOOL CChatDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
 
-    m_recTranscript.SetDefaultCharFormat(*YiZi::Client::TranscriptDefaultCF::Get());
+    m_recTranscript.SetDefaultCharFormat(*YiZi::Client::DefaultCF::Get());
 
     m_recTranscript.SetBackgroundColor(false, RGB(240, 240, 240));
 
@@ -142,12 +142,20 @@ void CChatDlg::WriteTranscript(const CString& message, const CTime& time, const 
     else
         m_bIsFirstLine = false;
 
-    CString header;
-    header.Format(_T("%s    %s\r\n"), nickname, time.Format(_T("%T")));
-    m_recTranscript.ReplaceSel(header);
+    m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptNicknameCF::Get());
+    m_recTranscript.ReplaceSel(nickname);
+
+    m_recTranscript.ReplaceSel(_T("    "));
+
+    m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptTimeCF::Get());
+    m_recTranscript.ReplaceSel(time.Format(_T("%T")));
+
+    m_recTranscript.ReplaceSel(_T("\r\n"));
 
     m_recTranscript.SetSelectionCharFormat(*YiZi::Client::TranscriptContentCF::Get());
     m_recTranscript.ReplaceSel(message);
+
+    m_recTranscript.SetSelectionCharFormat(*YiZi::Client::DefaultCF::Get());
 
     if (toLock)
         lock.unlock();
@@ -227,7 +235,6 @@ void CChatDlg::OnFont()
     // TODO: Check if chat message can still be received while dlg is open.
     CCheckFontDlg{}.DoModal();
 
-    m_recTranscript.SetDefaultCharFormat(*YiZi::Client::TranscriptDefaultCF::Get());
     RewriteAllTranscript();
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);

@@ -24,7 +24,9 @@ namespace YiZi::Client
 
     DefaultCF* DefaultCF::s_DefaultCF = new DefaultCF{};
 
-    TranscriptDefaultCF* TranscriptDefaultCF::s_TranscriptDefaultCF = new TranscriptDefaultCF{};
+    TranscriptNicknameCF* TranscriptNicknameCF::s_TranscriptNicknameCF = new TranscriptNicknameCF{};
+
+    TranscriptTimeCF* TranscriptTimeCF::s_TranscriptTimeCF = new TranscriptTimeCF{};
 
     TranscriptContentCF* TranscriptContentCF::s_TranscriptContentCF = new TranscriptContentCF{};
 
@@ -73,9 +75,16 @@ namespace YiZi::Client
         bUnderlineType = CFU_UNDERLINE;
     }
 
-    TranscriptDefaultCF::TranscriptDefaultCF()
+    TranscriptNicknameCF::TranscriptNicknameCF()
     {
         dwMask = 0xfeffffff | CFM_SIZE & (~CFM_UNDERLINETYPE);
+        bUnderlineType = CFU_UNDERLINENONE;
+    }
+
+    TranscriptTimeCF::TranscriptTimeCF()
+    {
+        dwMask = 0xfeffffff | CFM_SIZE & (~CFM_UNDERLINETYPE);
+        yHeight = static_cast<decltype(yHeight)>(160 * 0.8);
         bUnderlineType = CFU_UNDERLINENONE;
     }
 

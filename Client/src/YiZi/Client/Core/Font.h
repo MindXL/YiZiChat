@@ -35,16 +35,28 @@ namespace YiZi::Client
         DefaultCF();
     };
 
-    class TranscriptDefaultCF final : public DefaultCF
+    class TranscriptNicknameCF final : public DefaultCF
     {
     public:
-        static TranscriptDefaultCF* Get() { return s_TranscriptDefaultCF; }
+        static TranscriptNicknameCF* Get() { return s_TranscriptNicknameCF; }
 
     private:
-        static TranscriptDefaultCF* s_TranscriptDefaultCF;
+        static TranscriptNicknameCF* s_TranscriptNicknameCF;
 
     private:
-        TranscriptDefaultCF();
+        TranscriptNicknameCF();
+    };
+
+    class TranscriptTimeCF final : public DefaultCF
+    {
+    public:
+        static TranscriptTimeCF* Get() { return s_TranscriptTimeCF; }
+
+    private:
+        static TranscriptTimeCF* s_TranscriptTimeCF;
+
+    private:
+        TranscriptTimeCF();
     };
 
     class TranscriptContentCF final : public DefaultCF
