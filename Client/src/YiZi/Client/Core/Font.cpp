@@ -68,7 +68,7 @@ namespace YiZi::Client
         cbSize = sizeof(DefaultCF);
         dwMask = 0xfeffffff;
         dwEffects = 0x44000000;
-        yHeight = 160;
+        yHeight = s_DefaultFontSize * 10;
         wcscpy_s(szFaceName, s_DefaultFontFace);
         wWeight = 400;
         lcid = 0x00000804;

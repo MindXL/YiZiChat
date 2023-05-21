@@ -6,6 +6,8 @@ namespace YiZi::Client
 {
     constexpr const wchar_t* const s_DefaultFontFace = _T("ĞÂËÎÌå");
 
+    constexpr LONG s_DefaultFontSize = 16;
+
     class FontSizeMap final : public std::map<long, const wchar_t*>
     {
     public:

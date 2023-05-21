@@ -28,21 +28,18 @@ BOOL CCheckFontDlg::OnInitDialog()
     CDialogEx::OnInitDialog();
 
     // TODO: Read from file.
-    m_fcbFontFace.SelectFont(YiZi::Client::DefaultCF::Get()->szFaceName);
+    m_fcbFontFace.SelectFont(YiZi::Client::s_DefaultFontFace);
 
-    constexpr LONG defaultFontSize = 16;
     int defaultIndex = 0;
-
     for (const auto& [fontSize, fontSizeStr] : *YiZi::Client::FontSizeMap::Get())
     {
         m_cbFontSize.AddString(fontSizeStr);
 
         const int index = m_cbFontSize.GetCount() - 1;
         m_cbFontSize.SetItemDataPtr(index, (void*)&fontSize);
-        if (fontSize == defaultFontSize)
+        if (fontSize == YiZi::Client::s_DefaultFontSize)
             defaultIndex = index;
     }
-
     m_cbFontSize.SetCurSel(defaultIndex);
 
     return TRUE; // return TRUE unless you set the focus to a control
