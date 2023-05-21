@@ -75,9 +75,9 @@ void CChatDlg::HandleChatMessageResponse()
 {
     const auto* const response_data = (YiZi::Packet::ChatMessageResponse*)(m_pChatResponseBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
 
-    auto content{(const wchar_t*)response_data->content};
-    CTime sendTime{static_cast<__time64_t>(response_data->timestamp / 1000)};
-    auto nickname{(const wchar_t*)response_data->nickname};
+    const auto content{(const wchar_t*)response_data->content};
+    const CTime sendTime{static_cast<__time64_t>(response_data->timestamp / 1000)};
+    const auto nickname{(const wchar_t*)response_data->nickname};
 
     // TODO: Store and write can be run in parallel.
     StoreTranscript(content, sendTime, nickname);
