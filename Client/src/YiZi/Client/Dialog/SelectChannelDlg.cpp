@@ -11,12 +11,15 @@
 IMPLEMENT_DYNAMIC(CSelectChannelDlg, CDialogEx)
 
 CSelectChannelDlg::CSelectChannelDlg(CWnd* pParent /*=nullptr*/)
-    : CDialogEx(IDD_SELECT_CHANNEL_DIALOG, pParent) {}
+    : CDialogEx(IDD_SELECT_CHANNEL_DIALOG, pParent)
+      , m_csChannelDescription(_T("")) {}
 
 void CSelectChannelDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_lbChannel, m_lbChannel);
+    DDX_Text(pDX, IDC_EDIT_CHANNEL_DESCRIPTION, m_csChannelDescription);
+    DDV_MaxChars(pDX, m_csChannelDescription, YiZi::Database::Channel::ItemLength::DESCRIPTION_MAX_LENGTH);
 }
 
 BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialogEx)
@@ -25,6 +28,7 @@ BEGIN_MESSAGE_MAP(CSelectChannelDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CSelectChannelDlg::OnBnClickedRefresh)
     ON_MESSAGE(WM_CHANNEL_CONNECTION_SUCCESS, &CSelectChannelDlg::OnChannelConnectionSuccess)
     ON_MESSAGE(WM_CHANNEL_CONNECTION_FAILURE, &CSelectChannelDlg::OnChannelConnectionFailure)
+    ON_LBN_SELCHANGE(IDC_lbChannel, &CSelectChannelDlg::OnLbnSelchangelbchannel)
 END_MESSAGE_MAP()
 
 void CSelectChannelDlg::FetchChannelList(const HWND hwnd)
@@ -182,6 +186,12 @@ void CSelectChannelDlg::HandleChannelConnectionResponse(YiZi::Client::CSocket* s
     }
 }
 
+void CSelectChannelDlg::UpdateChannelDescription(const int index)
+{
+    m_csChannelDescription = m_umChannelMap.at(index).GetDescription();
+    UpdateData(false);
+}
+
 // CSelectChannelDlg 消息处理程序
 
 BOOL CSelectChannelDlg::OnInitDialog()
@@ -243,7 +253,10 @@ afx_msg LRESULT CSelectChannelDlg::OnRecvChannel(const WPARAM wParam, LPARAM lPa
     delete pChannel;
 
     if (m_umChannelMap.size() == 1)
+    {
         m_lbChannel.SetCurSel(0);
+        UpdateChannelDescription(0);
+    }
 
     return 0;
 }
@@ -270,4 +283,9 @@ afx_msg LRESULT CSelectChannelDlg::OnChannelConnectionFailure(const WPARAM wPara
 
     delete reason;
     return 0;
+}
+
+void CSelectChannelDlg::OnLbnSelchangelbchannel()
+{
+    UpdateChannelDescription(m_lbChannel.GetCurSel());
 }

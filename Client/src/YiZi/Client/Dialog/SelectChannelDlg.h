@@ -37,6 +37,8 @@ private:
     static bool HandleChannelConnectionRequest(YiZi::Client::CSocket* socket);
     static void HandleChannelConnectionResponse(YiZi::Client::CSocket* socket, HWND hwnd);
 
+    void UpdateChannelDescription(int index);
+
     BOOL OnInitDialog() override;
     BOOL DestroyWindow() override;
     afx_msg void OnBnClickedOk();
@@ -44,6 +46,7 @@ private:
     afx_msg LRESULT OnRecvChannel(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnChannelConnectionSuccess(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnChannelConnectionFailure(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnLbnSelchangelbchannel();
 
 private:
     // std::unordered_map<m_lbChannel中的序号，所对应的频道id>
@@ -53,4 +56,7 @@ private:
     std::thread m_tConnectChannelThread{};
 
     CListBox m_lbChannel;
+
+public:
+    CString m_csChannelDescription;
 };
