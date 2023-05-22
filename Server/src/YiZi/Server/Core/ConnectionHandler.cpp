@@ -168,7 +168,6 @@ namespace YiZi::Server
 
         const auto* const request_data = (Packet::ChatMessageRequest*)(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
 
-        const uint32_t& uid = request_data->id;
         const uint64_t timestamp = static_cast<uint64_t>(
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now().time_since_epoch()
@@ -212,7 +211,7 @@ namespace YiZi::Server
             Database::Transcript::Item::uid,
             Database::Transcript::Item::time,
             Database::Transcript::Item::content
-        ).values(uid, timestamp, content).execute();
+        ).values(m_UserId, timestamp, content).execute();
 
         if (tSend.joinable())
             tSend.join();
