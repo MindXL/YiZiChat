@@ -30,6 +30,10 @@ namespace YiZi::Client
 
     TranscriptContentCF* TranscriptContentCF::s_TranscriptContentCF = new TranscriptContentCF{};
 
+    DefaultCFont* const DefaultCFont::s_DefaultCFont = new DefaultCFont{};
+
+    ChatDlgMessageCFont* const ChatDlgMessageCFont::s_ChatDlgMessageCFont = new ChatDlgMessageCFont{};
+
     // Load font faces.
     // Save this.
     /*
@@ -93,5 +97,59 @@ namespace YiZi::Client
         dwMask = 0xfeffffff | CFM_SIZE & (~CFM_UNDERLINETYPE);
         yHeight = static_cast<decltype(yHeight)>(160 * 1.5);
         bUnderlineType = CFU_UNDERLINENONE;
+    }
+
+    void DefaultCFont::SetFontFace(const wchar_t* fontFace)
+    {
+        LOGFONT lf{};
+        GetLogFont(&lf);
+
+        DeleteObject();
+
+        wcscpy_s(lf.lfFaceName, fontFace);
+        CreateFontIndirect(&lf);
+    }
+
+    void DefaultCFont::SetFontHeight(const decltype(std::declval<LOGFONT>().lfHeight) fontSize)
+    {
+        LOGFONT lf{};
+        GetLogFont(&lf);
+
+        DeleteObject();
+
+        const HDC hDC = GetDC(nullptr);
+        lf.lfHeight = -MulDiv(fontSize * 0.8, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+        ReleaseDC(nullptr, hDC);
+
+        CreateFontIndirect(&lf);
+    }
+
+    LOGFONT DefaultCFont::GetDefaultLOGFONT()
+    {
+        LOGFONT lf{};
+        lf.lfHeight = -16;
+        lf.lfWeight = 400;
+        lf.lfCharSet = GB2312_CHARSET;
+        wcscpy_s(lf.lfFaceName, s_DefaultFontFace);
+        return lf;
+    }
+
+    DefaultCFont::DefaultCFont()
+    {
+        const LOGFONT lf{GetDefaultLOGFONT()};
+        CreateFontIndirect(&lf);
+    }
+
+    ChatDlgMessageCFont::ChatDlgMessageCFont()
+    {
+        DeleteObject();
+
+        LOGFONT lf{GetDefaultLOGFONT()};
+
+        const HDC hDC = GetDC(nullptr);
+        lf.lfHeight = -MulDiv(s_DefaultFontSize * 0.8, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+        ReleaseDC(nullptr, hDC);
+
+        CreateFontIndirect(&lf);
     }
 }

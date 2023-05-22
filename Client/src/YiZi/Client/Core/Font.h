@@ -72,4 +72,33 @@ namespace YiZi::Client
     private:
         TranscriptContentCF();
     };
+
+    class DefaultCFont : public CFont
+    {
+    public:
+        static DefaultCFont* Get() { return s_DefaultCFont; }
+
+        void SetFontFace(const wchar_t* fontFace);
+        void SetFontHeight(decltype(std::declval<LOGFONT>().lfHeight) fontSize);
+
+    protected:
+        DefaultCFont();
+
+        static LOGFONT GetDefaultLOGFONT();
+
+    private:
+        static DefaultCFont* const s_DefaultCFont;
+    };
+
+    class ChatDlgMessageCFont final : public DefaultCFont
+    {
+    public:
+        static ChatDlgMessageCFont* Get() { return s_ChatDlgMessageCFont; }
+
+    private:
+        static ChatDlgMessageCFont* const s_ChatDlgMessageCFont;
+
+    private:
+        ChatDlgMessageCFont();
+    };
 }

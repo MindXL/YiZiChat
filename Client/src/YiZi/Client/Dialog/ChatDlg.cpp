@@ -16,15 +16,13 @@ IMPLEMENT_DYNAMIC(CChatDlg, CDialogEx)
 
 CChatDlg::CChatDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_CHAT_DIALOG, pParent)
-      , m_csMessage(_T(""))
       , m_csLocalUserNickname{YiZi::Client::User::Get()->GetNickname()} {}
 
 void CChatDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
-    DDX_Text(pDX, IDC_EDIT_MESSAGE, m_csMessage);
-    DDV_MaxChars(pDX, m_csMessage, YiZi::Database::Transcript::ItemLength::CONTENT_MAX_LENGTH);
     DDX_Control(pDX, IDC_RICHEDIT2_TRANSCRIPT, m_recTranscript);
+    DDX_Control(pDX, IDC_EDIT_MESSAGE, m_ceMessage);
 }
 
 BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
@@ -44,6 +42,7 @@ BOOL CChatDlg::OnInitDialog()
     SetWindowText(YiZi::Client::Channel::GetCurrentChannel()->GetName());
 
     m_recTranscript.SetDefaultCharFormat(*YiZi::Client::DefaultCF::Get());
+    m_ceMessage.SetFont(YiZi::Client::ChatDlgMessageCFont::Get(), true);
 
     m_recTranscript.SetBackgroundColor(false, RGB(240, 240, 240));
 
@@ -84,7 +83,6 @@ void CChatDlg::HandleChatMessageResponse()
     // TODO: Store and write can be run in parallel.
     StoreTranscript(content, sendTime, nickname);
     WriteTranscript(content, sendTime, nickname, true);
-    UpdateData(false);
 }
 
 void CChatDlg::HandleLogoutRequest()
@@ -195,15 +193,20 @@ void CChatDlg::ClearTranscript(const bool toLock)
 
 void CChatDlg::OnBnClickedButtonSend()
 {
-    UpdateData(true);
+    m_ceMessage.GetWindowText(m_csMessage);
+
     // TODO: Pop a tip window when user continues to click the button up to 3 times.
     if (m_csMessage.GetLength() <= 0)
+    {
+        m_csMessage.Empty();
         return;
+    }
 
     if (const bool success = HandleChatMessageRequest();
         !success)
     {
         AfxMessageBox(_T("连接错误。请重新尝试发送。"));
+        m_csMessage.Empty();
         return;
     }
 
@@ -214,8 +217,9 @@ void CChatDlg::OnBnClickedButtonSend()
     // TODO: Store and write can be run in parallel.
     StoreTranscript(m_csMessage, current, m_csLocalUserNickname);
     WriteTranscript(m_csMessage, current, m_csLocalUserNickname, true);
+    m_ceMessage.SetSel(0, -1);
+    m_ceMessage.Clear();
     m_csMessage.Empty();
-    UpdateData(false);
 }
 
 void CChatDlg::OnBnClickedButtonEmptyTranscript()
@@ -240,6 +244,7 @@ void CChatDlg::OnFont()
     // TODO: Check if chat message can still be received while dlg is open.
     CCheckFontDlg{}.DoModal();
 
+    m_ceMessage.SetFont(YiZi::Client::ChatDlgMessageCFont::Get(), true);
     RewriteAllTranscript();
 
     SendDlgItemMessage(IDC_RICHEDIT2_TRANSCRIPT, WM_VSCROLL, SB_BOTTOM, 0);

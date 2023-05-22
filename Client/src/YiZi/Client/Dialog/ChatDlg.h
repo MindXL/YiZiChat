@@ -57,7 +57,7 @@ private:
     std::thread m_tListenChatMessageThread{};
 
     CRichEditCtrl m_recTranscript;
-    CString m_csMessage;
+    CEdit m_ceMessage;
 
     // TODO: Stop storing so many strings.
     std::mutex m_mLists;
@@ -66,6 +66,7 @@ private:
     std::mutex m_mTranscript;
     const CString& m_csLocalUserNickname;
     bool m_bIsFirstLine = true;
+    CString m_csMessage;
 
     CHARFORMAT2 m_cfTranscriptContent{};
 };
