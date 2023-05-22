@@ -424,6 +424,7 @@ namespace YiZi::Server
                 response_data->reason = (uint8_t)Packet::ChannelConnectionFailReason::ChannelNotExist;
                 return false;
             }
+#ifdef YZ_DEBUG
         case 1:
             {
                 // This means it actually exists.
@@ -431,7 +432,6 @@ namespace YiZi::Server
                 m_ChannelId = cid;
                 return true;
             }
-#ifdef YZ_DEBUG
         default:
             {
                 // This means that multiple channel with same id exists in mysql.
