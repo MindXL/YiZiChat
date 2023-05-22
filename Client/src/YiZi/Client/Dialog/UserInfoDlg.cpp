@@ -72,7 +72,7 @@ bool CUserInfoDlg::HandleChangeUserPasswordResponse()
 
     if (response_data->success)
     {
-        AfxMessageBox(_T("修改成功。"));
+        AfxMessageBox(_T("密码修改成功。"));
         return true;
     }
 
@@ -81,10 +81,10 @@ bool CUserInfoDlg::HandleChangeUserPasswordResponse()
     {
     case YiZi::Packet::ChangeUserPasswordFailReason::PasswordIsIdentical:
         {
-            AfxMessageBox(_T("修改失败，密码不能与原密码相同。"));
+            AfxMessageBox(_T("密码修改失败，新密码不能与原密码相同。"));
             break;
         }
-    default: AfxMessageBox(_T("修改失败，请重试。"));
+    default: AfxMessageBox(_T("密码修改失败，请重试。"));
     }
     return false;
 }
@@ -129,7 +129,7 @@ bool CUserInfoDlg::HandleChangeUserNicknameResponse()
 
     if (response_data->success)
     {
-        AfxMessageBox(_T("修改成功。"));
+        AfxMessageBox(_T("昵称修改成功。"));
         return true;
     }
 
@@ -141,7 +141,7 @@ bool CUserInfoDlg::HandleChangeUserNicknameResponse()
             AfxMessageBox(_T("昵称已存在。"));
             break;
         }
-    default: AfxMessageBox(_T("修改失败，请重试。"));
+    default: AfxMessageBox(_T("昵称修改失败，请重试。"));
     }
     return false;
 }
@@ -220,7 +220,7 @@ void CUserInfoDlg::OnBnClickedButtonChangePassword()
 
     if (!HandleChangeUserPasswordRequest())
     {
-        AfxMessageBox(_T("修改失败，请重试。"));
+        AfxMessageBox(_T("密码修改失败，请重试。"));
         recover();
         return;
     }
@@ -273,7 +273,7 @@ void CUserInfoDlg::OnBnClickedButtonChangeNickname()
 
     if (m_csNewNickname == oldNickname)
     {
-        AfxMessageBox(_T("新昵称不能与原昵称相同。"));
+        AfxMessageBox(_T("昵称修改失败，新昵称不能与原昵称相同。"));
         recover();
         return;
     }
@@ -286,7 +286,7 @@ void CUserInfoDlg::OnBnClickedButtonChangeNickname()
 
     if (!HandleChangeUserNicknameRequest())
     {
-        AfxMessageBox(_T("修改失败，请重试。"));
+        AfxMessageBox(_T("昵称修改失败，请重试。"));
         recover();
         return;
     }
