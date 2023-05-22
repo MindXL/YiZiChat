@@ -62,7 +62,7 @@ namespace YiZi::Server
         throw std::logic_error{"Send() is not supported in Server-End Socket (SListenSocket)."};
     }
 
-    packet_length_t SListenSocket::Receive(void* const buffer, packet_length_t byteCount)
+    packet_length_t SListenSocket::Receive(void* const buffer, packet_length_t byteCount, int flags)
     {
         throw std::logic_error{"Receive() is not supported in Server-End Socket (SListenSocket)."};
     }
@@ -118,9 +118,9 @@ namespace YiZi::Server
 #endif
     }
 
-    packet_length_t SAcceptSocket::Receive(void* const buffer, const packet_length_t byteCount)
+    packet_length_t SAcceptSocket::Receive(void* const buffer, const packet_length_t byteCount, const int flags)
     {
-        const auto count = recv(m_Socket, buffer, byteCount, 0);
+        const auto count = recv(m_Socket, buffer, byteCount, flags);
         if (count <= 0)
             SetClosed();
         return count;

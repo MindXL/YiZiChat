@@ -17,7 +17,7 @@ namespace YiZi::Client
         bool Accept() override { throw std::logic_error{"Accept() is not supported in Client-End Socket"}; }
 
         int Send(const void* buffer, packet_length_t byteCount) override;
-        packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
+        packet_length_t Receive(void* buffer, packet_length_t byteCount, int flags = 0) override;
 
         [[nodiscard]] static Socket* Get() { return s_CSocket; }
 

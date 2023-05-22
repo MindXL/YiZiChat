@@ -65,9 +65,9 @@ namespace YiZi::Client
         return count;
     }
 
-    packet_length_t CSocket::Receive(void* buffer, const packet_length_t byteCount)
+    packet_length_t CSocket::Receive(void* buffer, const packet_length_t byteCount, const int flags)
     {
-        const int count = m_Socket.Receive(buffer, byteCount);
+        const int count = m_Socket.Receive(buffer, byteCount, flags);
         if (count <= 0)
             Close();
         return count;

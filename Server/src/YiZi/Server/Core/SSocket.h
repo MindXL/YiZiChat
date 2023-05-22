@@ -21,7 +21,7 @@ namespace YiZi::Server
         bool Accept() override;
 
         int Send(const void* buffer, packet_length_t byteCount) override;
-        packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
+        packet_length_t Receive(void* buffer, packet_length_t byteCount, int flags = 0) override;
 
         [[nodiscard]] bool IsClosed() const override { return s_IsClosed; }
 
@@ -55,7 +55,7 @@ namespace YiZi::Server
         bool Accept() override;
 
         int Send(const void* buffer, packet_length_t byteCount) override;
-        packet_length_t Receive(void* buffer, packet_length_t byteCount) override;
+        packet_length_t Receive(void* buffer, packet_length_t byteCount, int flags = 0) override;
         [[nodiscard]] bool IsClosed() const override { return m_IsClosed; }
 
     private:
