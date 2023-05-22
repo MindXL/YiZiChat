@@ -41,6 +41,8 @@ BOOL CChatDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
 
+    SetWindowText(YiZi::Client::Channel::GetCurrentChannel()->GetName());
+
     m_recTranscript.SetDefaultCharFormat(*YiZi::Client::DefaultCF::Get());
 
     m_recTranscript.SetBackgroundColor(false, RGB(240, 240, 240));
