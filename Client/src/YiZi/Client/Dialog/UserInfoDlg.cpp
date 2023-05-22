@@ -292,5 +292,10 @@ void CUserInfoDlg::OnBnClickedButtonChangeNickname()
     }
 
     if (!HandleChangeUserNicknameResponse())
+    {
         recover();
+        return;
+    }
+
+    YiZi::Client::User::Get()->SetNickname(m_csNewNickname);
 }
