@@ -22,13 +22,27 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
+    [[nodiscard]] bool HandleChangeUserPasswordRequest();
+    // TODO: Change the return type to corresponding fail reason.
+    [[nodiscard]] bool HandleChangeUserPasswordResponse();
+    [[nodiscard]] bool HandleChangeUserNicknameRequest();
+    [[nodiscard]] bool HandleChangeUserNicknameResponse();
+
     BOOL OnInitDialog() override;
+    afx_msg void OnBnClickedButtonChangePassword();
+    afx_msg void OnBnClickedButtonChangeNickname();
 
 private:
     CString m_csPhone;
     CEdit m_cePassword;
     CEdit m_ceNickname;
     CString m_csJoinTime;
+
+    CStringA m_csaNewPassword;
+    CString m_csNewNickname;
+
+    bool m_bIsChangingPassword = false;
+    bool m_bIsChangingNickname = false;
 
     static const CString s_csPasswordPlaceholder;
 };

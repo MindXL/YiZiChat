@@ -15,6 +15,10 @@ namespace YiZi::Packet
         ChannelDetailResponse,
         ChannelConnectionRequest, ChannelConnectionResponse,
         ChatMessageRequest, ChatMessageResponse,
+        ChangeUserPasswordRequest,
+        ChangeUserPasswordResponse,
+        ChangeUserNicknameRequest,
+        ChangeUserNicknameResponse,
     };
 
     struct PacketHeader
@@ -122,6 +126,46 @@ namespace YiZi::Packet
 
     static constexpr int CHAT_MESSAGE_RESPONSE_LENGTH = sizeof(ChatMessageResponse);
 
+    struct ChangeUserPasswordRequest
+    {
+        uint8_t password[Database::User::ItemLength::PASSWORD_MAX_LENGTH + 1];
+    };
+
+    static constexpr int CHANGE_USER_PASSWORD_REQUEST_LENGTH = sizeof(ChangeUserPasswordRequest);
+
+    enum class ChangeUserPasswordFailReason : uint8_t
+    {
+        PasswordIsIdentical
+    };
+
+    struct ChangeUserPasswordResponse
+    {
+        uint8_t success;
+        uint8_t reason; // Only makes sense if "success == false".
+    };
+
+    static constexpr int CHANGE_USER_PASSWORD_RESPONSE_LENGTH = sizeof(ChangeUserPasswordResponse);
+
+    struct ChangeUserNicknameRequest
+    {
+        uint8_t nickname[(Database::User::ItemLength::NICKNAME_MAX_LENGTH + 1) * sizeof(char16_t)];
+    };
+
+    static constexpr int CHANGE_USER_NICKNAME_REQUEST_LENGTH = sizeof(ChangeUserNicknameRequest);
+
+    enum class ChangeUserNicknameFailReason : uint8_t
+    {
+        NicknameAlreadyExists
+    };
+
+    struct ChangeUserNicknameResponse
+    {
+        uint8_t success;
+        uint8_t reason;
+    };
+
+    static constexpr int CHANGE_USER_NICKNAME_RESPONSE_LENGTH = sizeof(ChangeUserNicknameResponse);
+
     // Macro "max" is defined in "minwindef.h" on client-end.
 #ifdef YZ_CLIENT
 #ifdef max
@@ -136,6 +180,8 @@ namespace YiZi::Packet
                    CHANNEL_LIST_REQUEST_LENGTH,
                    CHANNEL_CONNECTION_REQUEST_LENGTH,
                    CHAT_MESSAGE_REQUEST_LENGTH,
+                   CHANGE_USER_PASSWORD_REQUEST_LENGTH,
+                   CHANGE_USER_NICKNAME_REQUEST_LENGTH,
                    0
                });
     }
@@ -148,6 +194,8 @@ namespace YiZi::Packet
                    CHANNEL_DETAIL_RESPONSE_LENGTH,
                    CHANNEL_CONNECTION_RESPONSE_LENGTH,
                    CHAT_MESSAGE_RESPONSE_LENGTH,
+                   CHANGE_USER_PASSWORD_RESPONSE_LENGTH,
+                   CHANGE_USER_NICKNAME_RESPONSE_LENGTH,
                    0
                });
     }

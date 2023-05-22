@@ -11,6 +11,10 @@
 
 namespace YiZi::Server
 {
+    const std::string ConnectionHandler::s_SQLInHandleChangeUserNicknameRequest{
+        std::move(std::string{"COUNT("}.append(Database::Channel::Item::id).append(")"))
+    };
+
     ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
         : m_Client{client}, m_UserId{0}, m_ChannelId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first},
           m_ResBuffer{m_ReqBuffer + Packet::REQUEST_MAX_LENGTH()} { }
@@ -47,6 +51,8 @@ namespace YiZi::Server
         case Packet::PacketType::ChannelListRequest: return HandleChannelListRequest();
         case Packet::PacketType::ChannelConnectionRequest: return HandleChannelConnectionRequest();
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
+        case Packet::PacketType::ChangeUserPasswordRequest: return HandleChangeUserPasswordRequest();
+        case Packet::PacketType::ChangeUserNicknameRequest: return HandleChangeUserNicknameRequest();
         default: return false;
         }
     }
@@ -211,6 +217,99 @@ namespace YiZi::Server
         if (tSend.joinable())
             tSend.join();
         return true;
+    }
+
+    bool ConnectionHandler::HandleChangeUserPasswordRequest() const
+    {
+        const auto* const request_data = reinterpret_cast<Packet::ChangeUserPasswordRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::string_view password{(const char*)request_data->password};
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+        mysqlx::RowResult result = tUser.select(
+                                            Database::User::Item::password
+                                        )
+                                        .where("id=:id")
+                                        .bind("id", m_UserId)
+                                        .execute();
+
+#ifdef YZ_DEBUG
+        if (result.count() != 1)
+        {
+            // This means that thread-local user id was cached incorrectly.
+            // TODO: If admin can delete user, then server will close the live connection with the specific user. By that time, change the behavior here.
+            __asm("int3");
+        }
+#endif
+
+        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+        response_header->type = (uint8_t)Packet::PacketType::ChangeUserPasswordResponse;
+
+        auto* const response_data = reinterpret_cast<Packet::ChangeUserPasswordResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        const auto row = result.fetchOne();
+        if (password != row[0].get<std::string>())
+        {
+            response_data->success = true;
+
+            // Ignore that database might fail for now.
+            tUser.update()
+                 .set(Database::User::Item::password, password.data())
+                 .where("id=:id")
+                 .bind("id", m_UserId)
+                 .execute();
+        }
+        else
+        {
+            response_data->success = false;
+            response_data->reason = (uint8_t)Packet::ChangeUserPasswordFailReason::PasswordIsIdentical;
+        }
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANGE_USER_PASSWORD_RESPONSE_LENGTH;
+        const bool success = m_Client->Send(m_ResBuffer, response_len);
+        return success;
+    }
+
+    bool ConnectionHandler::HandleChangeUserNicknameRequest() const
+    {
+        const auto* const request_data = reinterpret_cast<Packet::ChangeUserNicknameRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::u16string_view nickname{(const char16_t*)request_data->nickname};
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+
+        mysqlx::RowResult result = tUser.select(
+                                            s_SQLInHandleChangeUserNicknameRequest
+                                        )
+                                        .where("nickname=:nickname")
+                                        .bind("nickname", nickname.data())
+                                        .execute();
+
+        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+        response_header->type = (uint8_t)Packet::PacketType::ChangeUserNicknameResponse;
+
+        auto* const response_data = reinterpret_cast<Packet::ChangeUserNicknameResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        if (result.fetchOne()[0].get<uint32_t>() == 0)
+        {
+            // Ignore that database might fail for now.
+            tUser.update()
+                 .set(Database::User::Item::nickname, nickname.data())
+                 .where("id=:id")
+                 .bind("id", m_UserId)
+                 .execute();
+
+            response_data->success = true;
+        }
+        else
+        {
+            response_data->success = false;
+            response_data->reason = (uint8_t)Packet::ChangeUserNicknameFailReason::NicknameAlreadyExists;
+        }
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANGE_USER_NICKNAME_RESPONSE_LENGTH;
+        const bool success = m_Client->Send(m_ResBuffer, response_len);
+        return success;
     }
 
     bool ConnectionHandler::ValidateUserLogin()

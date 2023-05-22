@@ -103,7 +103,7 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
     const auto* const response_header = (YiZi::Packet::PacketHeader*)m_pChatResponseBuffer;
     while (true)
     {
-        if (const auto count = socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
+        if (const auto count = socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen, MSG_PEEK);
             count <= 0)
             break;
 
@@ -113,6 +113,7 @@ void CChatDlg::ListenChatMessage(const HWND hWnd)
             continue;
         }
 
+        socket->Receive(m_pChatResponseBuffer, s_iChatResponseBufferLen);
         ::PostMessage(hWnd, WM_RECVDATA, 0, 0);
         std::this_thread::yield();
     }
@@ -223,6 +224,8 @@ void CChatDlg::OnBnClickedButtonEmptyTranscript()
 void CChatDlg::OnUserInfo()
 {
     CUserInfoDlg{}.DoModal();
+    // TODO: Update local user's nickname in transcripts.
+    // TODO: Receive a packet of others changing their nickname, and then update in transcripts.
 }
 
 void CChatDlg::OnAbout()
