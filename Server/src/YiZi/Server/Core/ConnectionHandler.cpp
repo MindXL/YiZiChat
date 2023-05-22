@@ -33,6 +33,7 @@ namespace YiZi::Server
             if (!Dispatch())
                 break;
         }
+        LoginMap::Get()->erase(m_UserId);
     }
 
     bool ConnectionHandler::Dispatch()
@@ -81,7 +82,6 @@ namespace YiZi::Server
 
     bool ConnectionHandler::HandleLogoutRequest() const
     {
-        LoginMap::Get()->erase(m_UserId);
         return false;
     }
 
