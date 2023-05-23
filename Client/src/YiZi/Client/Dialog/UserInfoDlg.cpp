@@ -31,7 +31,7 @@ BEGIN_MESSAGE_MAP(CUserInfoDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON_CHANGE_NICKNAME, &CUserInfoDlg::OnBnClickedButtonChangeNickname)
 END_MESSAGE_MAP()
 
-bool CUserInfoDlg::HandleChangeUserPasswordRequest()
+bool CUserInfoDlg::HandleChangeUserPasswordRequest() const
 {
     // TODO: Apply for a new buffer.
     uint8_t* const reqBuffer = YiZi::Client::Buffer::Get()->GetReqBuffer();
@@ -49,7 +49,7 @@ bool CUserInfoDlg::HandleChangeUserPasswordRequest()
     return success;
 }
 
-bool CUserInfoDlg::HandleChangeUserPasswordResponse()
+bool CUserInfoDlg::HandleChangeUserPasswordResponse() const
 {
     uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
     constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHANGE_USER_PASSWORD_RESPONSE_LENGTH;
@@ -89,7 +89,7 @@ bool CUserInfoDlg::HandleChangeUserPasswordResponse()
     return false;
 }
 
-bool CUserInfoDlg::HandleChangeUserNicknameRequest()
+bool CUserInfoDlg::HandleChangeUserNicknameRequest() const
 {
     uint8_t* const reqBuffer = YiZi::Client::Buffer::Get()->GetReqBuffer();
     constexpr int request_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHANGE_USER_NICKNAME_REQUEST_LENGTH;
@@ -106,7 +106,7 @@ bool CUserInfoDlg::HandleChangeUserNicknameRequest()
     return success;
 }
 
-bool CUserInfoDlg::HandleChangeUserNicknameResponse()
+bool CUserInfoDlg::HandleChangeUserNicknameResponse() const
 {
     uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
     constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::CHANGE_USER_NICKNAME_RESPONSE_LENGTH;

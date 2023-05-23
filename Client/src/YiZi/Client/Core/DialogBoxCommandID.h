@@ -4,8 +4,9 @@ namespace YiZi::Client
 {
     enum DialogBoxCommandID
     {
-        CID_LOGOUT = -2,
         CID_FAIL = -1,
+        CID_LOGOUT = -2,
+        CID_VALIDATE_ADMIN_SUCCESS = -3,
 
         CID_OK = IDOK,
         CID_CANCEL = IDCANCEL,

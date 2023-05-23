@@ -15,6 +15,8 @@
 #define IDD_SELECT_CHANNEL_DIALOG       136
 #define IDD_TEST_CONNECTION_DIALOG      138
 #define IDD_CHECK_FONT_DIALOG           140
+#define IDD_VALIDATE_ADMIN_DIALOG       143
+#define IDD_REGISTER_USER_DIALOG        145
 #define IDC_txtPhone                    1000
 #define IDC_txtPassword                 1002
 #define IDC_EDIT_TRANSCRIPT             1003
@@ -48,13 +50,16 @@
 #define ID_LOGOUT                       32776
 #define ID_32777                        32777
 #define ID_FONT                         32778
+#define ID_32779                        32779
+#define ID_32780                        32780
+#define ID_REGISTER_USER                32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        143
-#define _APS_NEXT_COMMAND_VALUE         32779
+#define _APS_NEXT_RESOURCE_VALUE        147
+#define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

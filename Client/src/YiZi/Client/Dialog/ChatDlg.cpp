@@ -9,6 +9,8 @@
 #include <YiZi/Client/Dialog/UserInfoDlg.h>
 #include <YiZi/Client/Dialog/AboutDlg.h>
 #include <YiZi/Client/Dialog/CheckFontDlg.h>
+#include <YiZi/Client/Dialog/ValidateAdminDlg.h>
+#include <YiZi/Client/Dialog/RegisterUserDlg.h>
 
 // CChatDlg 对话框
 
@@ -33,6 +35,7 @@ BEGIN_MESSAGE_MAP(CChatDlg, CDialogEx)
     ON_COMMAND(ID_LOGOUT, &CChatDlg::OnLogout)
     ON_MESSAGE(WM_RECVDATA, &CChatDlg::OnRecvData)
     ON_COMMAND(ID_FONT, &CChatDlg::OnFont)
+    ON_COMMAND(ID_REGISTER_USER, &CChatDlg::OnRegisterUser)
 END_MESSAGE_MAP()
 
 BOOL CChatDlg::OnInitDialog()
@@ -271,6 +274,40 @@ void CChatDlg::OnLogout()
     YiZi::Client::Channel::DeleteCurrentChannel();
 
     EndDialog(YiZi::Client::DialogBoxCommandID::CID_LOGOUT);
+}
+
+void CChatDlg::OnRegisterUser()
+{
+#ifdef YZ_DEBUG
+    // This means that non-admin user triggered.
+    if (!YiZi::Client::User::Get()->GetIsAdmin())
+        __debugbreak();
+#endif
+
+    CDialogEx* dlg = new CValidateAdminDlg{};
+    const INT_PTR nResponse = dlg->DoModal();
+    delete dlg;
+    if (nResponse == YiZi::Client::DialogBoxCommandID::CID_CANCEL)
+        return;
+    if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+    {
+        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+        return;
+    }
+    if (nResponse != YiZi::Client::DialogBoxCommandID::CID_VALIDATE_ADMIN_SUCCESS)
+    {
+        AfxMessageBox(_T("出现未知错误。"));
+        return;
+    }
+
+    dlg = new CRegisterUserDlg{};
+    dlg->DoModal();
+    if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
+    {
+        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
+        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+    }
 }
 
 LRESULT CChatDlg::OnRecvData(WPARAM wParam, LPARAM lParam)

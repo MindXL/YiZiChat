@@ -22,11 +22,11 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
-    [[nodiscard]] bool HandleChangeUserPasswordRequest();
+    [[nodiscard]] bool HandleChangeUserPasswordRequest() const;
     // TODO: Change the return type to corresponding fail reason.
-    [[nodiscard]] bool HandleChangeUserPasswordResponse();
-    [[nodiscard]] bool HandleChangeUserNicknameRequest();
-    [[nodiscard]] bool HandleChangeUserNicknameResponse();
+    [[nodiscard]] bool HandleChangeUserPasswordResponse() const;
+    [[nodiscard]] bool HandleChangeUserNicknameRequest() const;
+    [[nodiscard]] bool HandleChangeUserNicknameResponse() const;
 
     BOOL OnInitDialog() override;
     afx_msg void OnBnClickedButtonChangePassword();

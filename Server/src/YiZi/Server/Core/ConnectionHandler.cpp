@@ -11,9 +11,9 @@
 
 namespace YiZi::Server
 {
-    const std::string ConnectionHandler::s_SQLInHandleChangeUserNicknameRequest{
-        std::move(std::string{"COUNT("}.append(Database::Channel::Item::id).append(")"))
-    };
+    const std::string ConnectionHandler::s_SQLCountUserId{std::move(std::string{"COUNT("}.append(Database::User::Item::id).append(")"))};
+
+    const std::string ConnectionHandler::s_SQLCountChannelId{std::move(std::string{"COUNT("}.append(Database::Channel::Item::id).append(")"))};
 
     ConnectionHandler::ConnectionHandler(SAcceptSocket* const client)
         : m_Client{client}, m_UserId{0}, m_ChannelId{0}, m_ReqBuffer{BufferManager::Get()->Fetch().first},
@@ -53,6 +53,8 @@ namespace YiZi::Server
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         case Packet::PacketType::ChangeUserPasswordRequest: return HandleChangeUserPasswordRequest();
         case Packet::PacketType::ChangeUserNicknameRequest: return HandleChangeUserNicknameRequest();
+        // TODO: Debug if m_IsAdmin is not true.
+        case Packet::PacketType::ValidateAdminRequest: return HandleValidateAdminRequest();
         default: return false;
         }
     }
@@ -279,7 +281,7 @@ namespace YiZi::Server
         mysqlx::Table tUser = db->getTable(Database::User::name);
 
         mysqlx::RowResult result = tUser.select(
-                                            s_SQLInHandleChangeUserNicknameRequest
+                                            s_SQLCountChannelId
                                         )
                                         .where("nickname=:nickname")
                                         .bind("nickname", nickname.data())
@@ -308,6 +310,40 @@ namespace YiZi::Server
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::CHANGE_USER_NICKNAME_RESPONSE_LENGTH;
+        const bool success = m_Client->Send(m_ResBuffer, response_len);
+        return success;
+    }
+
+    bool ConnectionHandler::HandleValidateAdminRequest() const
+    {
+        const auto* const request_data = reinterpret_cast<Packet::ValidateAdminRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::string_view password{(const char*)request_data->password};
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+        mysqlx::RowResult result = tUser.select(
+                                            s_SQLCountUserId
+                                        )
+                                        .where("id=:id AND password=:password AND is_admin=1")
+                                        .bind("id", m_UserId).bind("password", password.data())
+                                        .execute();
+
+        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+        response_header->type = (uint8_t)Packet::PacketType::ValidateAdminResponse;
+
+        auto* const response_data = reinterpret_cast<Packet::ValidateAdminResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+
+        if (result.fetchOne()[0].get<uint32_t>() == 1)
+        {
+            response_data->success = true;
+        }
+        else
+        {
+            response_data->success = false;
+            response_data->reason = (uint8_t)Packet::ValidateAdminFailReason::UserPasswordIncorrect;
+        }
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::VALIDATE_ADMIN_RESPONSE_LENGTH;
         const bool success = m_Client->Send(m_ResBuffer, response_len);
         return success;
     }
@@ -378,6 +414,7 @@ namespace YiZi::Server
         response_data->join_time = row[3].get<decltype(response_data->join_time)>();
 
         const bool is_admin = row[4].get<bool>();
+        m_IsAdmin = is_admin;
         response_data->isAdmin = static_cast<decltype(response_data->isAdmin)>(is_admin);
 
         loginMap->emplace(m_UserId,

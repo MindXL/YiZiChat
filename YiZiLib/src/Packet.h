@@ -9,16 +9,22 @@ namespace YiZi::Packet
     enum class PacketType
     {
         TestConnectionRequest, TestConnectionResponse,
+
         LoginRequest, LoginResponse,
         LogoutRequest,
+
         ChannelListRequest, ChannelListResponse,
         ChannelDetailResponse,
         ChannelConnectionRequest, ChannelConnectionResponse,
+
         ChatMessageRequest, ChatMessageResponse,
+
         ChangeUserPasswordRequest,
         ChangeUserPasswordResponse,
         ChangeUserNicknameRequest,
         ChangeUserNicknameResponse,
+
+        ValidateAdminRequest, ValidateAdminResponse,
     };
 
     struct PacketHeader
@@ -165,6 +171,26 @@ namespace YiZi::Packet
 
     static constexpr int CHANGE_USER_NICKNAME_RESPONSE_LENGTH = sizeof(ChangeUserNicknameResponse);
 
+    struct ValidateAdminRequest
+    {
+        uint8_t password[Database::User::ItemLength::PASSWORD_MAX_LENGTH + 1];
+    };
+
+    static constexpr int VALIDATE_ADMIN_REQUEST_LENGTH = sizeof(ValidateAdminRequest);
+
+    enum class ValidateAdminFailReason : uint8_t
+    {
+        UserPasswordIncorrect,
+    };
+
+    struct ValidateAdminResponse
+    {
+        uint8_t success;
+        uint8_t reason;
+    };
+
+    static constexpr int VALIDATE_ADMIN_RESPONSE_LENGTH = sizeof(ValidateAdminResponse);
+
     // Macro "max" is defined in "minwindef.h" on client-end.
 #ifdef YZ_CLIENT
 #ifdef max
@@ -181,6 +207,7 @@ namespace YiZi::Packet
                    CHAT_MESSAGE_REQUEST_LENGTH,
                    CHANGE_USER_PASSWORD_REQUEST_LENGTH,
                    CHANGE_USER_NICKNAME_REQUEST_LENGTH,
+                   VALIDATE_ADMIN_REQUEST_LENGTH,
                    0
                });
     }
@@ -195,6 +222,7 @@ namespace YiZi::Packet
                    CHAT_MESSAGE_RESPONSE_LENGTH,
                    CHANGE_USER_PASSWORD_RESPONSE_LENGTH,
                    CHANGE_USER_NICKNAME_RESPONSE_LENGTH,
+                   VALIDATE_ADMIN_RESPONSE_LENGTH,
                    0
                });
     }

@@ -189,6 +189,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\YiZi\Client\Dialog\RegisterUserDlg.h" />
     <ClInclude Include="src\YiZi\Client\Dialog\CheckFontDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\YiZi\Client\Core\Channel.h" />
@@ -209,8 +210,10 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="src\YiZi\Client\Dialog\UserInfoDlg.h" />
     <ClInclude Include="src\YiZi\Client\Dialog\TestConnectionDlg.h" />
+    <ClInclude Include="src\YiZi\Client\Dialog\ValidateAdminDlg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\YiZi\Client\Dialog\RegisterUserDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Dialog\CheckFontDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Core\Channel.cpp" />
     <ClCompile Include="src\YiZi\Client\Core\Environment.cpp" />
@@ -232,6 +235,7 @@
     </ClCompile>
     <ClCompile Include="src\YiZi\Client\Dialog\UserInfoDlg.cpp" />
     <ClCompile Include="src\YiZi\Client\Dialog\TestConnectionDlg.cpp" />
+    <ClCompile Include="src\YiZi\Client\Dialog\ValidateAdminDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc" />
