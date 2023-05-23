@@ -60,7 +60,7 @@ namespace YiZi::Database
 
         namespace Item
         {
-            //NAME cid = "cid";
+            NAME cid = "cid";
             NAME uid = "uid";
             NAME time = "time";
             NAME content = "content";

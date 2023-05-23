@@ -208,10 +208,11 @@ namespace YiZi::Server
         auto* const db = MySQLConnector::Get()->GetSchema();
         mysqlx::Table tTranscript = db->getTable(Database::Transcript::name);
         tTranscript.insert(
+            Database::Transcript::Item::cid,
             Database::Transcript::Item::uid,
             Database::Transcript::Item::time,
             Database::Transcript::Item::content
-        ).values(m_UserId, timestamp, content).execute();
+        ).values(m_ChannelId, m_UserId, timestamp, content).execute();
 
         if (tSend.joinable())
             tSend.join();
