@@ -41,6 +41,16 @@ BOOL CChatDlg::OnInitDialog()
 
     SetWindowText(YiZi::Client::Channel::GetCurrentChannel()->GetName());
 
+    m_cmMenu.LoadMenuW(IDR_CHAT_MENU);
+    SetMenu(&m_cmMenu);
+
+    if (!YiZi::Client::User::Get()->GetIsAdmin())
+    {
+        // Delete separator and then delete this options.
+        m_cmMenu.DeleteMenu(2, MF_BYPOSITION);
+        m_cmMenu.DeleteMenu(2, MF_BYPOSITION);
+    }
+
     m_recTranscript.SetDefaultCharFormat(*YiZi::Client::DefaultCF::Get());
     m_ceMessage.SetFont(YiZi::Client::ChatDlgMessageCFont::Get(), true);
 

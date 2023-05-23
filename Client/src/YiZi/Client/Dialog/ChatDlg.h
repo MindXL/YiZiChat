@@ -56,6 +56,7 @@ private:
 
     std::thread m_tListenChatMessageThread{};
 
+    CMenu m_cmMenu;
     CRichEditCtrl m_recTranscript;
     CEdit m_ceMessage;
 
