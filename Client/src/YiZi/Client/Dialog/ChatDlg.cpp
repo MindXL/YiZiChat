@@ -9,8 +9,7 @@
 #include <YiZi/Client/Dialog/UserInfoDlg.h>
 #include <YiZi/Client/Dialog/AboutDlg.h>
 #include <YiZi/Client/Dialog/CheckFontDlg.h>
-#include <YiZi/Client/Dialog/ValidateAdminDlg.h>
-#include <YiZi/Client/Dialog/RegisterUserDlg.h>
+#include <YiZi/Client/Dialog/SingleInputDlg.h>
 
 // CChatDlg 对话框
 
@@ -284,8 +283,9 @@ void CChatDlg::OnRegisterUser()
         __debugbreak();
 #endif
 
-    CDialogEx* dlg = new CValidateAdminDlg{};
-    const INT_PTR nResponse = dlg->DoModal();
+    auto* dlg = new CSingleInputDlg{};
+    dlg->SetUsage(CSingleInputDlg::Usage::ValidateAdmin);
+    INT_PTR nResponse = dlg->DoModal();
     delete dlg;
     if (nResponse == YiZi::Client::DialogBoxCommandID::CID_CANCEL)
         return;
@@ -301,8 +301,10 @@ void CChatDlg::OnRegisterUser()
         return;
     }
 
-    dlg = new CRegisterUserDlg{};
-    dlg->DoModal();
+    dlg = new CSingleInputDlg{};
+    dlg->SetUsage(CSingleInputDlg::Usage::RegisterUser);
+    nResponse = dlg->DoModal();
+    delete dlg;
     if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
     {
         TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
