@@ -305,6 +305,8 @@ void CChatDlg::OnRegisterUser()
     dlg->SetUsage(CSingleInputDlg::Usage::RegisterUser);
     nResponse = dlg->DoModal();
     delete dlg;
+    if (nResponse == YiZi::Client::DialogBoxCommandID::CID_CANCEL)
+        return;
     if (nResponse == YiZi::Client::DialogBoxCommandID::CID_FAIL)
     {
         TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");

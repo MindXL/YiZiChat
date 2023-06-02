@@ -98,6 +98,76 @@ bool CSingleInputDlg::HandleValidateAdminResponse() const
     return false;
 }
 
+bool CSingleInputDlg::HandleRegisterUserRequest() const
+{
+    uint8_t* const reqBuffer = YiZi::Client::Buffer::Get()->GetReqBuffer();
+    constexpr int request_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::REGISTER_USER_REQUEST_LENGTH;
+
+    auto* const request_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(reqBuffer);
+    request_header->type = (uint8_t)YiZi::Packet::PacketType::RegisterUserRequest;
+
+    auto* const request_data = reinterpret_cast<YiZi::Packet::RegisterUserRequest*>(reqBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
+
+    CString csPhone;
+    m_ceSingleInput.GetWindowTextW(csPhone);
+    const CStringA phone{csPhone};
+
+    memcpy_s(request_data->phone, YiZi::Database::User::ItemLength::PASSWORD_MAX_LENGTH,
+             phone.GetString(), phone.GetLength());
+    request_data->phone[phone.GetLength()] = '\0';
+
+    const bool success = YiZi::Client::CSocket::Get()->Send(reqBuffer, request_len);
+    if (!success)
+        AfxMessageBox(_T("链接失败。请重新启动软件。"));
+    return success;
+}
+
+bool CSingleInputDlg::HandleRegisterUserResponse()
+{
+    uint8_t* const resBuffer = YiZi::Client::Buffer::Get()->GetResBuffer();
+    constexpr int response_len = YiZi::Packet::PACKET_HEADER_LENGTH + YiZi::Packet::REGISTER_USER_RESPONSE_LENGTH;
+
+    const auto* const response_header = reinterpret_cast<YiZi::Packet::PacketHeader*>(resBuffer);
+    auto* const g_socket = YiZi::Client::CSocket::Get();
+    while (true)
+    {
+        g_socket->Receive(resBuffer, response_len, MSG_PEEK);
+        if (response_header->type != (uint8_t)YiZi::Packet::PacketType::RegisterUserResponse)
+        {
+            std::this_thread::yield();
+            continue;
+        }
+        g_socket->Receive(resBuffer, response_len);
+        break;
+    }
+
+    const auto* const response_data = reinterpret_cast<YiZi::Packet::RegisterUserResponse*>(resBuffer + YiZi::Packet::PACKET_HEADER_LENGTH);
+
+    if (response_data->success)
+    {
+        AfxMessageBox(_T("注册成功。"));
+        m_Additional.defaultPassword = response_data->password;
+        return true;
+    }
+
+    /* If validation failed */
+    switch (YiZi::Packet::RegisterUserFailReason{response_data->reason})
+    {
+    case YiZi::Packet::RegisterUserFailReason::AdminTokenExpired:
+        {
+            AfxMessageBox(_T("需要重新验证管理员权限。"));
+            CDialogEx::OnCancel();
+        }
+    case YiZi::Packet::RegisterUserFailReason::UserAlreadyExists:
+        {
+            AfxMessageBox(_T("该账号已存在。"));
+            CDialogEx::OnCancel();
+        }
+    default: AfxMessageBox(_T("出现未知错误，请重试。"));
+    }
+    return false;
+}
+
 // CSingleInputDlg 消息处理程序
 
 BOOL CSingleInputDlg::OnInitDialog()
@@ -162,7 +232,37 @@ void CSingleInputDlg::OnBnClickedOk()
             EndDialog(YiZi::Client::DialogBoxCommandID::CID_VALIDATE_ADMIN_SUCCESS);
             break;
         }
-    case Usage::RegisterUser: break;
+    case Usage::RegisterUser:
+        {
+            CString csPhone;
+            m_ceSingleInput.GetWindowTextW(csPhone);
+            if (const CStringA phone{csPhone};
+                !YiZi::Client::InputControl::User_Phone(phone))
+            {
+                GetDlgItem(IDC_EDIT_PASSWORD)->GetFocus();
+                return;
+            }
+
+            if (!HandleRegisterUserRequest())
+            {
+                m_ceSingleInput.SetWindowTextW(_T(""));
+                return;
+            }
+
+            if (!HandleRegisterUserResponse())
+            {
+                m_ceSingleInput.SetWindowTextW(_T(""));
+                return;
+            }
+
+            SetWindowTextW(_T("该账户的默认密码"));
+            m_ceSingleInput.SetReadOnly(true);
+            m_ceSingleInput.SetWindowTextW(m_Additional.defaultPassword);
+
+            GetDlgItem(IDOK)->EnableWindow(0);
+
+            break;
+        }
     default: ;
     }
 }

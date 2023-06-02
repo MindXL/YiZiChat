@@ -34,6 +34,8 @@ public:
 private:
     [[nodiscard]] bool HandleValidateAdminRequest() const;
     [[nodiscard]] bool HandleValidateAdminResponse() const;
+    [[nodiscard]] bool HandleRegisterUserRequest() const;
+    [[nodiscard]] bool HandleRegisterUserResponse();
 
     BOOL OnInitDialog() override;
     afx_msg void OnBnClickedOk();
@@ -41,4 +43,9 @@ private:
 private:
     Usage m_uUsage = Usage::None;
     CEdit m_ceSingleInput;
+
+    struct Additional
+    {
+        CString defaultPassword;
+    } m_Additional;
 };

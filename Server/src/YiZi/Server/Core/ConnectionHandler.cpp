@@ -53,8 +53,9 @@ namespace YiZi::Server
         case Packet::PacketType::ChatMessageRequest: return HandleChatMessageRequest();
         case Packet::PacketType::ChangeUserPasswordRequest: return HandleChangeUserPasswordRequest();
         case Packet::PacketType::ChangeUserNicknameRequest: return HandleChangeUserNicknameRequest();
-        // TODO: Debug if m_IsAdmin is not true.
+        // TODO: Debug break if m_IsAdmin is not true.
         case Packet::PacketType::ValidateAdminRequest: return HandleValidateAdminRequest();
+        case Packet::PacketType::RegisterUserRequest: return HandleRegisterUserRequest();
         default: return false;
         }
     }
@@ -314,7 +315,7 @@ namespace YiZi::Server
         return success;
     }
 
-    bool ConnectionHandler::HandleValidateAdminRequest() const
+    bool ConnectionHandler::HandleValidateAdminRequest()
     {
         const auto* const request_data = reinterpret_cast<Packet::ValidateAdminRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
         const std::string_view password{(const char*)request_data->password};
@@ -336,6 +337,7 @@ namespace YiZi::Server
         if (result.fetchOne()[0].get<uint32_t>() == 1)
         {
             response_data->success = true;
+            m_AdminToken = true;
         }
         else
         {
@@ -344,6 +346,49 @@ namespace YiZi::Server
         }
 
         constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::VALIDATE_ADMIN_RESPONSE_LENGTH;
+        const bool success = m_Client->Send(m_ResBuffer, response_len);
+        return success;
+    }
+
+    bool ConnectionHandler::HandleRegisterUserRequest()
+    {
+        const bool isValid = ValidateRegisterUser();
+
+        auto* const response_data = reinterpret_cast<Packet::RegisterUserResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+        response_data->success = isValid;
+
+        if (isValid)
+        {
+            // TODO: Generate a default password and nickname.
+            const std::string password{"123456789"};
+
+            const auto* const request_data = reinterpret_cast<Packet::RegisterUserRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+            const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+
+            const uint64_t timestamp = static_cast<uint64_t>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch()
+                ).count());
+
+            auto* db = MySQLConnector::Get()->GetSchema();
+            mysqlx::Table tUser = db->getTable(Database::User::name);
+            tUser.insert(
+                     Database::User::Item::phone,
+                     Database::User::Item::password,
+                     Database::User::Item::nickname,
+                     Database::User::Item::join_time,
+                     Database::User::Item::is_admin
+                     //).values(phone.data(), password, "CONVERT(unix_timestamp(now()) * 1000, CHAR)", timestamp, 0)
+                 ).values(phone.data(), password, std::to_string(timestamp).data(), timestamp, 0)
+                 .execute();
+
+            memcpy(response_data->password, password.data(), password.length());
+        }
+
+        auto* const response_header = (Packet::PacketHeader*)m_ResBuffer;
+        response_header->type = (uint8_t)Packet::PacketType::RegisterUserResponse;
+
+        constexpr int response_len = Packet::PACKET_HEADER_LENGTH + Packet::REGISTER_USER_RESPONSE_LENGTH;
         const bool success = m_Client->Send(m_ResBuffer, response_len);
         return success;
     }
@@ -478,5 +523,36 @@ namespace YiZi::Server
             }
 #endif
         }
+    }
+
+    bool ConnectionHandler::ValidateRegisterUser()
+    {
+        auto* const response_data = reinterpret_cast<Packet::RegisterUserResponse*>(m_ResBuffer + Packet::PACKET_HEADER_LENGTH);
+        if (!m_AdminToken)
+        {
+            response_data->reason = (uint8_t)Packet::RegisterUserFailReason::AdminTokenExpired;
+            return false;
+        }
+        m_AdminToken = false;
+
+        const auto* const request_data = reinterpret_cast<Packet::RegisterUserRequest*>(m_ReqBuffer + Packet::PACKET_HEADER_LENGTH);
+        const std::string_view phone{(const char*)request_data->phone, Database::User::ItemLength::PHONE_LENGTH};
+
+        auto* const db = MySQLConnector::Get()->GetSchema();
+        mysqlx::Table tUser = db->getTable(Database::User::name);
+
+        if (mysqlx::RowResult result = tUser.select(
+                                                s_SQLCountUserId
+                                            )
+                                            .where("phone==:phone")
+                                            .bind("phone", phone.data())
+                                            .execute();
+            result.fetchOne()[0].get<uint32_t>() != 0)
+        {
+            response_data->reason = (uint8_t)Packet::RegisterUserFailReason::UserAlreadyExists;
+            return false;
+        }
+
+        return true;
     }
 }

@@ -25,6 +25,7 @@ namespace YiZi::Packet
         ChangeUserNicknameResponse,
 
         ValidateAdminRequest, ValidateAdminResponse,
+        RegisterUserRequest, RegisterUserResponse
     };
 
     struct PacketHeader
@@ -191,6 +192,28 @@ namespace YiZi::Packet
 
     static constexpr int VALIDATE_ADMIN_RESPONSE_LENGTH = sizeof(ValidateAdminResponse);
 
+    struct RegisterUserRequest
+    {
+        uint8_t phone[Database::User::ItemLength::PHONE_LENGTH + 1];
+    };
+
+    static constexpr int REGISTER_USER_REQUEST_LENGTH = sizeof(RegisterUserRequest);
+
+    enum class RegisterUserFailReason : uint8_t
+    {
+        AdminTokenExpired,
+        UserAlreadyExists,
+    };
+
+    struct RegisterUserResponse
+    {
+        uint8_t success;
+        uint8_t reason;
+        uint8_t password[Database::User::ItemLength::PASSWORD_MAX_LENGTH + 1];
+    };
+
+    static constexpr int REGISTER_USER_RESPONSE_LENGTH = sizeof(RegisterUserResponse);
+
     // Macro "max" is defined in "minwindef.h" on client-end.
 #ifdef YZ_CLIENT
 #ifdef max
@@ -208,6 +231,7 @@ namespace YiZi::Packet
                    CHANGE_USER_PASSWORD_REQUEST_LENGTH,
                    CHANGE_USER_NICKNAME_REQUEST_LENGTH,
                    VALIDATE_ADMIN_REQUEST_LENGTH,
+                   REGISTER_USER_REQUEST_LENGTH,
                    0
                });
     }
@@ -223,6 +247,7 @@ namespace YiZi::Packet
                    CHANGE_USER_PASSWORD_RESPONSE_LENGTH,
                    CHANGE_USER_NICKNAME_RESPONSE_LENGTH,
                    VALIDATE_ADMIN_RESPONSE_LENGTH,
+                   REGISTER_USER_RESPONSE_LENGTH,
                    0
                });
     }

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <atomic>
 
 #include "SSocket.h"
 
@@ -28,10 +29,12 @@ namespace YiZi::Server
         [[nodiscard]] bool HandleChatMessageRequest() const;
         [[nodiscard]] bool HandleChangeUserPasswordRequest() const;
         [[nodiscard]] bool HandleChangeUserNicknameRequest() const;
-        [[nodiscard]] bool HandleValidateAdminRequest() const;
+        [[nodiscard]] bool HandleValidateAdminRequest();
+        [[nodiscard]] bool HandleRegisterUserRequest();
 
         [[nodiscard]] bool ValidateUserLogin();
         [[nodiscard]] bool ValidateChannel();
+        [[nodiscard]] bool ValidateRegisterUser();
 
     private:
         SAcceptSocket* const m_Client;
@@ -40,6 +43,8 @@ namespace YiZi::Server
         uint32_t m_ChannelId;
         uint8_t* const m_ReqBuffer;
         uint8_t* const m_ResBuffer;
+
+        std::atomic<bool> m_AdminToken;
 
         static const std::string s_SQLCountUserId;
         static const std::string s_SQLCountChannelId;
