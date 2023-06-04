@@ -1,0 +1,9 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+
+# build
+**/x64/
+**/bin
+**/obj
