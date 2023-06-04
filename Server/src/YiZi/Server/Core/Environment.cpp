@@ -76,7 +76,9 @@ namespace YiZi::Server
             std::cout << "Please enter username: ";
             std::cin >> m_DBUsername;
             std::cout << "Please enter password: ";
+            system("stty -echo");
             std::cin >> m_DBPassword;
+            system("stty echo");
 
             oConfigFile << m_DBHost << '\n'
                 << m_DBPort << '\n'
