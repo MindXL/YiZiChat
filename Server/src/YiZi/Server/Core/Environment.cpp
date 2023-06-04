@@ -79,6 +79,7 @@ namespace YiZi::Server
             system("stty -echo");
             std::cin >> m_DBPassword;
             system("stty echo");
+            std::cout << std::endl;
 
             oConfigFile << m_DBHost << '\n'
                 << m_DBPort << '\n'
