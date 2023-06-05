@@ -85,7 +85,8 @@ bool CLoginDlg::HandleLoginRequest()
 
     auto* const g_Socket = YiZi::Client::CSocket::Get();
     g_Socket->Initialize();
-    if (!g_Socket->Connect(_T("127.0.0.1"), 5000) || !g_Socket->Send(reqBuffer, request_len))
+    const auto* const g_Env = YiZi::Client::Environment::Get();
+    if (!g_Socket->Connect(g_Env->GetServerIp(), g_Env->GetServerPort()) || !g_Socket->Send(reqBuffer, request_len))
     {
         AfxMessageBox(_T("连接服务器失败。请检查网络。"));
         return false;

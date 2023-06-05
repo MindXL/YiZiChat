@@ -4,7 +4,7 @@
 
 int main()
 {
-    constexpr YiZi::ip_t ip = "127.0.0.1";
+    constexpr YiZi::ip_t ip = "0.0.0.0";
     constexpr YiZi::port_t port = 5000;
 
     try
