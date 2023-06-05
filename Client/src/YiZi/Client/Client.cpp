@@ -104,7 +104,9 @@ BOOL CClientApp::InitInstance()
 
 void CClientApp::Main()
 {
-    YiZi::Client::Environment::Get()->CheckOuterEnvironment();
+    auto* const g_Env = YiZi::Client::Environment::Get();
+    g_Env->CheckOuterEnvironment();
+    g_Env->CheckInnerEnvironment();
 
     CDialogEx* dlg = nullptr;
     INT_PTR nResponse = 0;

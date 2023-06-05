@@ -27,8 +27,10 @@ BOOL CCheckFontDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
 
+    const auto* const g_Env = YiZi::Client::Environment::Get();
+
     // TODO: Read from file.
-    m_fcbFontFace.SelectFont(YiZi::Client::s_DefaultFontFace);
+    m_fcbFontFace.SelectFont(g_Env->GetCurrentFontFace());
 
     int defaultIndex = 0;
     for (const auto& [fontSize, fontSizeStr] : *YiZi::Client::FontSizeMap::Get())
@@ -37,7 +39,7 @@ BOOL CCheckFontDlg::OnInitDialog()
 
         const int index = m_cbFontSize.GetCount() - 1;
         m_cbFontSize.SetItemDataPtr(index, (void*)&fontSize);
-        if (fontSize == YiZi::Client::s_DefaultFontSize)
+        if (fontSize == g_Env->GetCurrentFontSize())
             defaultIndex = index;
     }
     m_cbFontSize.SetCurSel(defaultIndex);
@@ -53,6 +55,8 @@ BOOL CCheckFontDlg::DestroyWindow()
     auto* const contentCF = YiZi::Client::TranscriptContentCF::Get();
     auto* const messageCFont = YiZi::Client::ChatDlgMessageCFont::Get();
 
+    auto* const g_Env = YiZi::Client::Environment::Get();
+
     // If fontInfo equals nullptr, that means there's a bug in MFC.
     if (const auto* const fontInfo = m_fcbFontFace.GetSelFont();
         fontInfo != nullptr)
@@ -61,6 +65,8 @@ BOOL CCheckFontDlg::DestroyWindow()
         timeCF->SetFontFace(fontInfo->m_strName);
         contentCF->SetFontFace(fontInfo->m_strName);
         messageCFont->SetFontFace(fontInfo->m_strName);
+
+        g_Env->SetCurrentFontFace(fontInfo->m_strName);
     }
 
     const LONG fontSize = *static_cast<LONG*>(m_cbFontSize.GetItemDataPtr(m_cbFontSize.GetCurSel()));
@@ -69,6 +75,7 @@ BOOL CCheckFontDlg::DestroyWindow()
     timeCF->SetFontHeight(fontHeight * 0.8);
     contentCF->SetFontHeight(fontHeight * 1.5);
     messageCFont->SetFontHeight(fontSize);
+    g_Env->SetCurrentFontSize(fontSize);
 
     return CDialogEx::DestroyWindow();
 }

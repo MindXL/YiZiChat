@@ -28,6 +28,11 @@ namespace YiZi::Client
         oConfigFile.close();
     }
 
+    void Environment::CheckInnerEnvironment()
+    {
+        LoadFontInfo();
+    }
+
     Environment::Environment()
     {
         char* buffer = nullptr;
@@ -93,5 +98,11 @@ namespace YiZi::Client
         }
 
         m_IsServerIpConfigFileReady = true;
+    }
+
+    void Environment::LoadFontInfo()
+    {
+        m_CurrentFontFace = s_DefaultFontFace;
+        m_CurrentFontSize = s_DefaultFontSize;
     }
 }
